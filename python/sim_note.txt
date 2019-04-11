@@ -1,0 +1,17 @@
+interact with sabine:
+srun  -A amcheng --pty  /bin/bash   -l 
+check tasks:
+squeue -A amcheng
+check balance:
+sbank balance statement project <projectname>
+
+
+Bind-to-core:
+use taskset to set hard affinity so as to bind a process to that core.
+for i in range(0, n_processes):
+    p = Process(target=f)
+    # Pin created processes in a round-robin
+    os.system("taskset -p -c %d %d" % ((i % os.cpu_count()), p.pid))
+    p.start()
+
+Some errors occur when the process is pinned to a certain node, no output is given.
