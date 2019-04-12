@@ -7,11 +7,10 @@ import signal
 import os
 import time
 import math
-count = 0
 class OS_Simulator:
 	TIME_SLICE_LEN = 10
 	MAX_WCET=1000
-	def __init__(self, load, com_pid, has_sporadic = False, per_ratio = 0.5):
+	def __init__(self, load, com_pid, core_rank,has_sporadic = False, per_ratio = 0.5):
 		'''
 
 		Args:
@@ -27,6 +26,7 @@ class OS_Simulator:
 			info_pipe_read: type: Pipe; A pipe that receives the info from the scheduler
 			info_pipe_send:	type: Pipe; A pipe that sends the info of the OS to others.
 			target_pid:		type: pid;	The pid of the target process that receives message.
+			core_rank:		type: int; Set up which core the process should bind to
 		'''
 
 		#generate the task set here based on the load
@@ -43,7 +43,7 @@ class OS_Simulator:
 		#construct a pipe here and save the pipe ends in the job_pipe
 		self.job_pipe_read, self.job_pipe_send = Pipe(duplex=False)
 		self.info_pipe_read, self.info_pipe_send = Pipe(duplex=False)
-		signal.signal(signal.SIGUSR2, self.receive_info)
+		self.core_rank = core_rank
 		#start the non-stop process that generate jobs
 
 		p = Process(target=self.generate_jobs, args=(self.start_time,))
@@ -96,8 +96,7 @@ class OS_Simulator:
 		return task_set
 
 	def generate_jobs(self, start_time):
-		global count
-		os.system("taskset -p -c " +str(count % os.cpu_count())+" "+str(os.getpid()))
+		os.system("taskset -p -c " +str(self.core_rank% os.cpu_count())+" "+str(os.getpid()))
 		count+=1
 		arrived_task_list = []
 		phases = []#use the phases array to record which job of the task is to come next
@@ -140,8 +139,7 @@ class OS_Simulator:
 					j = Job(arrived_task_list[i].WCET, arb_ddl, arrived_task_list[i].task_id)
 					#send it through the pipe
 					self.job_pipe_send.send(j)
-					os.kill(self.target_pid, signal.SIGUSR1)
-					os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
+					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
 			#receive info from the pipe 
 
 	def get_job_pipe_read(self):
@@ -149,29 +147,23 @@ class OS_Simulator:
 	def get_info_pipe_send(self):
 		return self.info_pipe_send
 
-	def receive_info(self, signum, stack):
-		print('Receive info')
-		info = self.info_pipe_read.recv()
+
 		#analyze the info and decides whether a job is accomplished on time or not
 	def get_pid(self):
 		return self.gen_pid
-def read_job(signum, stack):
-	global job_receiver
-	print('Signal received')
-	job_now = job_receiver.recv()
-	print(job_now.job_info())
+
 
 
 #code for the test of OS_Simulator
-signal.signal(signal.SIGUSR1, read_job)
-a = OS_Simulator(10, os.getpid())
+core_count = 0
+a = OS_Simulator(10, os.getpid(), core_count)
+core_count += 1
 pid = a.get_pid()
 
-global job_receiver
 
 job_receiver= a.get_job_pipe_read()
 while True:
-	#os.kill(pid, signal.SIGUSR2)
-	print('waiting...')
-	#print(os.getpid())
-	time.sleep(1)
+	if job_receiver.poll():
+		job_now = job_receiver.recv()
+		print(job_now.job_info())
+
