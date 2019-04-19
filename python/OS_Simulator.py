@@ -8,47 +8,43 @@ import os
 import time
 import math
 class OS_Simulator:
-	TIME_SLICE_LEN = 10
-	MAX_WCET=1000
-	def __init__(self, load, com_pid, core_rank,has_sporadic = False, per_ratio = 0.5):
+	TIME_SLICE_LEN = 10 #each time slice is 10 ms
+	MAX_WCET=100 #WCET ranges from 10 ms to 1000 ms
+	def __init__(self, load, hard_ratio = 0 ,has_sporadic = False, per_ratio = 0.5):
 		'''
 
 		Args:
 			load:			type: double; The sum of densities of all tasks
 			task_list:		type: Task[]; The array of tasks running
-			start_time: 	type: datetime; The booting time of the OS_simulator
+			#start_time: 	type: datetime; The booting time of the OS_simulator
 			total_tasks:	type: int; The total number of tasks
 			total_jobs: 	type: int; The total number of jobs
 			success_jobs:	type: int; The number of jobs successfully accomplished in time
 			failed_tasks:	type: int; The number of tasks failed.
-			job_pipe_send:	type: Pipe; A pipe that sends the info of the OS to others.
-			job_pipe_read:	type: Pipe; A pipe that receives the info of others in OS
-			info_pipe_read: type: Pipe; A pipe that receives the info from the scheduler
-			info_pipe_send:	type: Pipe; A pipe that sends the info of the OS to others.
-			target_pid:		type: pid;	The pid of the target process that receives message.
-			core_rank:		type: int; Set up which core the process should bind to
+
 		'''
 
 		#generate the task set here based on the load
 		self.load = load
-		self.target_pid = com_pid
-		self.task_list = self.generate_tasks(load, has_sporadic, per_ratio)
+
+		self.task_list = self.generate_tasks(load, has_sporadic, per_ratio, hard_ratio)
 		self.total_tasks = len(self.task_list)
 		self.total_jobs = 0
 		self.success_jobs = 0
+		self.failed_tasks = 0
 		#for t in self.task_list:
 		#	print(t.task_info())
 		#set the start_time here
-		self.start_time = datetime.datetime.now()
+		
 		#construct a pipe here and save the pipe ends in the job_pipe
-		self.job_pipe_read, self.job_pipe_send = Pipe(duplex=False)
-		self.info_pipe_read, self.info_pipe_send = Pipe(duplex=False)
-		self.core_rank = core_rank
+		#self.job_pipe_read, self.job_pipe_send = Pipe(duplex=False)
+		#self.info_pipe_read, self.info_pipe_send = Pipe(duplex=False)
+
 		#start the non-stop process that generate jobs
 
-		p = Process(target=self.generate_jobs, args=(self.start_time,))
-		p.start()
-		self.gen_pid = p.pid	
+		#p = Process(target=self.generate_jobs, args=(self.start_time,))
+		#p.start()
+
 
 
 	def gen_kato_utilizations(self, target_val, min_val, max_val):
@@ -66,7 +62,7 @@ class OS_Simulator:
 			vals.append(val)
 		return vals
 
-	def generate_tasks(self, target_load, has_sporadic = False, per_ratio = 0.5):
+	def generate_tasks(self, target_load, has_sporadic = False, per_ratio = 0.5, hard_ratio = 0):
 		'''
 		 
 		 Args:
@@ -86,18 +82,24 @@ class OS_Simulator:
 			#arrival = -math.log(1.0 - random.random())
 			arrival = random.randint(0, 3000*OS_Simulator.TIME_SLICE_LEN)
 			is_periodic= True
-			if has_sporadic:
+			is_hard_rt = False
+			if hard_ratio>0:
+				dice = random.random()
+				if dice<hard_ratio:
+					is_hard_rt = True
+			elif has_sporadic:
 				dice = random.random()
 				if dice>= per_ratio:
 					is_periodic = False
-			task_now = Task(wcet, period, deadline, arrival, is_periodic)
+			task_now = Task(wcet, period, deadline, arrival, is_periodic, is_hard_rt)
 			task_set.append(task_now)
 		task_set = sorted(task_set, key=lambda x: x.arr_time)
 		return task_set
 
-	def generate_jobs(self, start_time):
-		os.system("taskset -p -c " +str(self.core_rank% os.cpu_count())+" "+str(os.getpid()))
-		count+=1
+	def generate_jobs(self, start_time, job_send, info_read, core_rank):
+		self.job_pipe_send = job_send
+		self.info_pipe_read = info_read
+		#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
 		arrived_task_list = []
 		phases = []#use the phases array to record which job of the task is to come next
 		counter = 0
@@ -105,13 +107,11 @@ class OS_Simulator:
 		while True:
 			time_now = datetime.datetime.now()
 			interval = (time_now - start_time).total_seconds()*1000
-			#if interval>=50000:
-			#	break
+
 			#add newly arrived tasks
 
-			#print(self.task_list[counter].arr_time/1000.0)
 			if not all_arrived:
-				arr_time_now = self.start_time+datetime.timedelta(milliseconds = self.task_list[counter].arr_time)
+				arr_time_now = start_time+datetime.timedelta(milliseconds = self.task_list[counter].arr_time)
 				#print(arr_time_now)
 				#print(self.start_time)
 				while arr_time_now<=time_now:#(time_now - self.task_list[counter].arr_time).total_second()>=0
@@ -124,7 +124,7 @@ class OS_Simulator:
 						all_arrived = True
 						print("All tasks' first instances have arrived.")
 						break
-					arr_time_now = self.start_time+datetime.timedelta(self.task_list[counter].arr_time)
+					arr_time_now = start_time+datetime.timedelta(self.task_list[counter].arr_time)
 
 
 			#maintain tasks that already arrived
@@ -141,27 +141,22 @@ class OS_Simulator:
 					self.job_pipe_send.send(j)
 					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
 			#receive info from the pipe 
+			#!!!!!!! To be done here, can do statistical analysis storage here!
 
-	def get_job_pipe_read(self):
-		return self.job_pipe_read
-	def get_info_pipe_send(self):
-		return self.info_pipe_send
-
-
-		#analyze the info and decides whether a job is accomplished on time or not
-	def get_pid(self):
-		return self.gen_pid
-
-
+'''
 
 #code for the test of OS_Simulator
 core_count = 0
-a = OS_Simulator(10, os.getpid(), core_count)
+a = OS_Simulator(10)
+job_pipe_read, job_pipe_send = Pipe(duplex=False)
+info_pipe_read, info_pipe_send = Pipe(duplex=False)
+
+start_time = datetime.datetime.now()
+
+p = Process(target=a.generate_jobs, args=(start_time, job_pipe_send, info_pipe_read, core_count))
+p.start()
 core_count += 1
-pid = a.get_pid()
-
-
-job_receiver= a.get_job_pipe_read()
+job_receiver= job_pipe_read
 while True:
 	if job_receiver.poll():
 		job_now = job_receiver.recv()
