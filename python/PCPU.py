@@ -3,6 +3,10 @@ from Partition import Partition
 from Task import Task, Job
 import math
 from OS_Simulator import OS_Simulator
+from Info_Message import Job_Report
+from multiprocessing import Process, Pipe
+import copy
+import datetime
 class PCPU:
 	count_pcpu=0
 	def __init__(self):
@@ -18,7 +22,7 @@ class PCPU:
 		self.pcpu_id = str(PCPU.count_pcpu)
 		PCPU.count_pcpu += 1
 		self.hyperperiod = 10000
-		self.par_list = []
+		self.par_dict = {}
 		self.time_par_table = [-1 for i in range(self.hyperperiod)]
 		self.factor = 0
 		self.rest = 1
@@ -26,13 +30,13 @@ class PCPU:
 		#run the multiprocessing here and set the signals and pipes. Task inserted are put in here. based on their ids.
 
 	def set_partitions(self, par_list):
-		self.par_list = par_list
 		total_aaf = 0
 		#first use magic7 to calculate the approximate availability factor
 		for i in range(len(par_list)):
+			self.par_dict[par_list[i].partition_id] = par_list[i]
 			aaf_now = self.magic7(par_list[i].af, par_list[i].reg) #using magic7 now
 			#aaf_now = self.AAF(par_list[i].af, par_list[i].reg)
-			par_list[i].set_aaf(aaf_now)
+			self.par_dict[par_list[i].partition_id].set_aaf(aaf_now)
 			print(aaf_now)
 			total_aaf += aaf_now
 		if total_aaf>1:
@@ -108,25 +112,27 @@ class PCPU:
 			store the final result to self.time_par_table
 		'''
 
-		timeslices = [[] for x in range(len(self.par_list))]
+		timeslices = [[] for x in range(len(self.par_dict))]
 		avail_time_slices = set()
 		aaf_left = []
+		partition_list = []
 		for j in range(self.hyperperiod):
 			avail_time_slices.add(j)
-		for i in range(len(self.par_list)):
-			aaf_left.append(self.par_list[i].aaf)
+		for (_, par_now) in self.par_dict.items():
+			aaf_left.append(par_now.aaf)
+			partition_list.append(par_now)
 
 
 		# how is distance decided???? how many time slices level l include? divides them on average. 
 
-		counter = len(self.par_list)
+		counter = len(partition_list)
 		level = 0
 		firstAvailableTimeSlice = 0
 		while counter>0:
 			w = 1/(2**level)
 			num = math.floor(w*self.hyperperiod) 
 			interval = 2**level
-			for i in range(len(self.par_list)):
+			for i in range(len(partition_list)):
 				aaf_now = aaf_left[i]
 				if aaf_now>=w or (self.approximateValue(abs(aaf_now-w))==0 and aaf_now>0):
 					for j in range(num):
@@ -134,7 +140,7 @@ class PCPU:
 						if time_slice_now>=self.hyperperiod or self.time_par_table[time_slice_now]!= -1:
 							print("Allocation conflicts!")
 							continue
-						self.time_par_table[time_slice_now] = self.par_list[i].partition_id
+						self.time_par_table[time_slice_now] = partition_list[i].partition_id
 						#timeslices[i].append(time_slice_now)
 						avail_time_slices.discard(time_slice_now)
 						#print(avail_time_slices)
@@ -172,26 +178,57 @@ class PCPU:
 
 	def run_pcpu(self, info_pipe):
 		while True:
-			now = self.time_now:
 			# find the job to be running here: 
-			partition_now = self.partition_list[self.time_par_table[now]]
-			now+=1
+			partition_now = self.par_dict[self.time_par_table[self.time_now]]
+			self.time_now += 1
 			job_now = partition_now.schedule()
-			#execute it for 10 milliseconds:
-			#need a message to be passed back
-			if job_now.WCET > OS_Simulator.TIME_SLICE_LEN:
-				job_now.WCET -= OS_Simulator.TIME_SLICE_LEN
-				partition_now.insert_job(job_now)
+			#execute it for 10 milliseconds by default:
+			execution_time = OS_Simulator.TIME_SLICE_LEN
+			if job_now is None:
+				self.execute(OS_Simulator.TIME_SLICE_LEN)
 			else:
+				if job_now.WCET<OS_Simulator.TIME_SLICE_LEN:
+					execution_time = job_now.WCET
 
-			execute(OS_Simulator.TIME_SLICE_LEN)
+				self.execute(OS_Simulator.TIME_SLICE_LEN)
 			#report execution with the info_pipe
+				if job_now.WCET > OS_Simulator.TIME_SLICE_LEN:
+					job_now.WCET -= OS_Simulator.TIME_SLICE_LEN
+					partition_now.insert_job(job_now)
+				else:
+					accomplished_time = datetime.datetime.now() #not fair to report not real-time if it is smaller
+					jr = Job_Report(job_now, accomplished_time)
+					info_pipe.send(jr)
 
 #test code for partition
+'''
 p = PCPU()
 par1 = Partition(0.375, 2)
 par2 = Partition(0.3125, 2)
 par3 = Partition(0.3125, 2)
 partition_list = [par1, par2, par3]
 p.set_partitions(partition_list)
-p.printSchedule()
+info_pipe_read, info_pipe_send = Pipe(duplex=False)
+
+now = datetime.datetime.now()
+interval = datetime.timedelta(seconds = 5)
+j_list = []
+j_list.append(Job(2,now+interval,1))
+interval = datetime.timedelta(seconds = 10)
+j_list.append(Job(2,now+interval,2))
+interval = datetime.timedelta(seconds = 0.004)
+j_list.append(Job(1,now+interval,1))
+
+#use for loop to set up the jobs in partitions
+for (_, par) in p.par_dict.items():
+	for j in range(3):
+		j_temp = copy.deepcopy(j_list[j])
+		par.insert_job(j_temp)
+
+pro = Process(target = p.run_pcpu, args=(info_pipe_send,))
+pro.start()
+while True:
+	if info_pipe_read.poll():
+		jr = info_pipe_read.recv()
+		print(jr.report())
+'''

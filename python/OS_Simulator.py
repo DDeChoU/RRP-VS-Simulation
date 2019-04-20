@@ -161,4 +161,4 @@ while True:
 	if job_receiver.poll():
 		job_now = job_receiver.recv()
 		print(job_now.job_info())
-
+'''

@@ -30,7 +30,12 @@ class Partition:
 		heapq.heappush(self.job_queue, Job)
 
 	def schedule(self):
-		return heapq.heappop(self.job_queue)
+		try:
+			job_now = heapq.heappop(self.job_queue)
+			#print(len(self.job_queue))
+			return job_now
+		except IndexError:
+			return None 
 
 
 #test 
@@ -45,9 +50,9 @@ interval = datetime.timedelta(seconds = 10)
 j_list.append(Job(2,now+interval,2))
 interval = datetime.timedelta(seconds = 4)
 j_list.append(Job(1,now+interval,1))
-for i in range(3):
-	p.insert_job(j_list[i])
+#for i in range(3):
+#	p.insert_job(j_list[i])
 
 for i in range(3):
-	print(p.schedule().job_info())
-'''
+	print(p.schedule())'''
+
