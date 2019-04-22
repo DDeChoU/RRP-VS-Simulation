@@ -2,7 +2,7 @@ from Task import Task
 from Task import Job
 import datetime
 import random
-from multiprocessing import Process, Pipe
+from multiprocessing import Process, Pipe, Queue
 import signal
 import os
 import time
@@ -96,9 +96,8 @@ class OS_Simulator:
 		task_set = sorted(task_set, key=lambda x: x.arr_time)
 		return task_set
 
-	def generate_jobs(self, start_time, job_send, info_read, core_rank):
+	def generate_jobs(self, start_time, job_send, core_rank):
 		self.job_pipe_send = job_send
-		self.info_pipe_read = info_read
 		#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
 		arrived_task_list = []
 		phases = []#use the phases array to record which job of the task is to come next
@@ -138,27 +137,29 @@ class OS_Simulator:
 					phases[i]+= 1
 					j = Job(arrived_task_list[i].WCET, arb_ddl, arrived_task_list[i].task_id)
 					#send it through the pipe
-					self.job_pipe_send.send(j)
+					self.job_pipe_send.put(j)#change the pipe sender to queue
 					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
-			#receive info from the pipe 
-			#!!!!!!! To be done here, can do statistical analysis storage here!
+
+
 
 '''
-
-#code for the test of OS_Simulator
+#code for the test of OS_Simulator: test passed!
 core_count = 0
 a = OS_Simulator(10)
-job_pipe_read, job_pipe_send = Pipe(duplex=False)
-info_pipe_read, info_pipe_send = Pipe(duplex=False)
+#job_pipe_read, job_pipe_send = Pipe(duplex=False)
+#info_pipe_read, info_pipe_send = Pipe(duplex=False)
+job_q = Queue()
+#info_q = Queue.Queue(0) #leave the info analysis to Scheduler.py
 
-start_time = datetime.datetime.now()
+start_time = datetime.datetime.now() 
 
-p = Process(target=a.generate_jobs, args=(start_time, job_pipe_send, info_pipe_read, core_count))
+p = Process(target=a.generate_jobs, args=(start_time, job_q, core_count))
 p.start()
 core_count += 1
-job_receiver= job_pipe_read
+job_receiver= job_q
 while True:
-	if job_receiver.poll():
-		job_now = job_receiver.recv()
+	time.sleep(5)
+	while not job_q.empty():
+		job_now = job_receiver.get()
 		print(job_now.job_info())
 '''

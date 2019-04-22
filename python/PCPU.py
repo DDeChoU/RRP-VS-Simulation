@@ -4,7 +4,7 @@ from Task import Task, Job
 import math
 from OS_Simulator import OS_Simulator
 from Info_Message import Job_Report
-from multiprocessing import Process, Pipe
+from multiprocessing import Process, Queue
 import copy
 import datetime
 class PCPU:
@@ -176,7 +176,7 @@ class PCPU:
 			if internal>=execution_time:
 				return
 
-	def run_pcpu(self, info_pipe):
+	def run_pcpu(self, info_pipe, job_receiver):
 		while True:
 			# find the job to be running here: 
 			partition_now = self.par_dict[self.time_par_table[self.time_now]]
@@ -198,9 +198,15 @@ class PCPU:
 				else:
 					accomplished_time = datetime.datetime.now() #not fair to report not real-time if it is smaller
 					jr = Job_Report(job_now, accomplished_time)
-					info_pipe.send(jr)
+					info_pipe.put(jr)
+			#receive jobs here, allocate based on the partition_id
+			while not job_receiver.empty():
+				job_now = job_receiver.get()
+				#insert jobs to corresponding partitions
+				par_now_id = job_now.par_id
+				self.par_dict[par_now_id].insert_job(job_now)
 
-#test code for partition
+#test code for partition: test passed
 '''
 p = PCPU()
 par1 = Partition(0.375, 2)
@@ -208,12 +214,13 @@ par2 = Partition(0.3125, 2)
 par3 = Partition(0.3125, 2)
 partition_list = [par1, par2, par3]
 p.set_partitions(partition_list)
-info_pipe_read, info_pipe_send = Pipe(duplex=False)
+info_pipe = Queue()
+job_pipe = Queue()
 
 now = datetime.datetime.now()
-interval = datetime.timedelta(seconds = 5)
+interval = datetime.timedelta(seconds = 4)
 j_list = []
-j_list.append(Job(2,now+interval,1))
+j_list.append(Job(2000,now+interval,1))
 interval = datetime.timedelta(seconds = 10)
 j_list.append(Job(2,now+interval,2))
 interval = datetime.timedelta(seconds = 0.004)
@@ -225,10 +232,10 @@ for (_, par) in p.par_dict.items():
 		j_temp = copy.deepcopy(j_list[j])
 		par.insert_job(j_temp)
 
-pro = Process(target = p.run_pcpu, args=(info_pipe_send,))
+pro = Process(target = p.run_pcpu, args=(info_pipe, job_pipe))
 pro.start()
 while True:
-	if info_pipe_read.poll():
-		jr = info_pipe_read.recv()
+	if not info_pipe.empty():
+		jr = info_pipe.get()
 		print(jr.report())
 '''
