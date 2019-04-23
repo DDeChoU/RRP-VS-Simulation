@@ -31,6 +31,7 @@ class OS_Simulator:
 		self.total_tasks = len(self.task_list)
 		self.total_jobs = 0
 		self.success_jobs = 0
+		self.failed_jobs = 0
 		self.failed_tasks = 0
 		#for t in self.task_list:
 		#	print(t.task_info())

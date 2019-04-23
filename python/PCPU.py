@@ -37,7 +37,7 @@ class PCPU:
 			aaf_now = self.magic7(par_list[i].af, par_list[i].reg) #using magic7 now
 			#aaf_now = self.AAF(par_list[i].af, par_list[i].reg)
 			self.par_dict[par_list[i].partition_id].set_aaf(aaf_now)
-			print(aaf_now)
+			#print(aaf_now)
 			total_aaf += aaf_now
 		if total_aaf>1:
 			print("Partitions on PCPU #"+str(self.pcpu_id)+" is not schedulable")
@@ -176,11 +176,13 @@ class PCPU:
 			if internal>=execution_time:
 				return
 
-	def run_pcpu(self, info_pipe, job_receiver):
+	def run_pcpu(self, info_pipe, job_receiver, core_rank):
 		while True:
+			#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
 			# find the job to be running here: 
 			partition_now = self.par_dict[self.time_par_table[self.time_now]]
 			self.time_now += 1
+			self.time_now %= self.hyperperiod
 			job_now = partition_now.schedule()
 			#execute it for 10 milliseconds by default:
 			execution_time = OS_Simulator.TIME_SLICE_LEN
