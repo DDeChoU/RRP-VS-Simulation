@@ -7,6 +7,7 @@ from Info_Message import Job_Report
 from multiprocessing import Process, Queue
 import copy
 import datetime
+import sys
 class PCPU:
 	count_pcpu=0
 	def __init__(self):
@@ -177,6 +178,9 @@ class PCPU:
 				return
 
 	def run_pcpu(self, info_pipe, job_receiver, core_rank):
+		f = open("PCPU"+str(core_rank)+".log", "w")
+		old = sys.stdout
+		sys.stdout = f
 		while True:
 			#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
 			# find the job to be running here: 

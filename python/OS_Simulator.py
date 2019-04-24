@@ -7,6 +7,7 @@ import signal
 import os
 import time
 import math
+import sys
 class OS_Simulator:
 	TIME_SLICE_LEN = 10 #each time slice is 10 ms
 	MAX_WCET=100 #WCET ranges from 10 ms to 1000 ms
@@ -98,6 +99,9 @@ class OS_Simulator:
 		return task_set
 
 	def generate_jobs(self, start_time, job_send, core_rank):
+		f = open("job_generation.log", "w")
+		old = sys.stdout
+		sys.stdout = f
 		self.job_pipe_send = job_send
 		#print(self.job_pipe_send)
 		#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
@@ -139,7 +143,7 @@ class OS_Simulator:
 					phases[i]+= 1
 					j = Job(arrived_task_list[i].WCET, arb_ddl, arrived_task_list[i].task_id)
 					#send it through the pipe
-					print("Trying to send through pipes")
+					#print("Trying to send through pipes")
 					self.job_pipe_send.put(j)#change the pipe sender to queue
 					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
 

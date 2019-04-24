@@ -3,6 +3,8 @@ from multiprocessing import Process, Pipe, Queue
 import random 
 import datetime
 from Partition import Partition
+import sys
+
 class Scheduler:
 
 	def __init__(self, sum_af, pcpus):
@@ -178,6 +180,9 @@ class Scheduler:
 
 
 		#run the scheduler, bind it to a seperate core 
+		f = open("scheduler.log","w")
+		old = sys.stdout
+		sys.stdout = f
 		#os.system("taskset -p -c " +str(core_count% os.cpu_count())+" "+str(os.getpid()))
 		while True:
 
@@ -212,6 +217,7 @@ class Scheduler:
 					tempP.join()
 				#print(str(self.failed_jobs)+', '+str(self.total_jobs))
 				terminate_pipe.send([self.failed_jobs, self.total_jobs])
+				sys.out = old
 				break
 			#print("One loop ends")
 
