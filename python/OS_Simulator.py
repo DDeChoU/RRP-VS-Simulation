@@ -99,6 +99,7 @@ class OS_Simulator:
 
 	def generate_jobs(self, start_time, job_send, core_rank):
 		self.job_pipe_send = job_send
+		#print(self.job_pipe_send)
 		#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
 		arrived_task_list = []
 		phases = []#use the phases array to record which job of the task is to come next
@@ -116,7 +117,7 @@ class OS_Simulator:
 				#print(self.start_time)
 				while arr_time_now<=time_now:#(time_now - self.task_list[counter].arr_time).total_second()>=0
 					print("A task has arrived")
-					print(counter)
+					#print(counter)
 					arrived_task_list.append(self.task_list[counter])
 					counter += 1
 					phases.append(0)
@@ -138,6 +139,7 @@ class OS_Simulator:
 					phases[i]+= 1
 					j = Job(arrived_task_list[i].WCET, arb_ddl, arrived_task_list[i].task_id)
 					#send it through the pipe
+					print("Trying to send through pipes")
 					self.job_pipe_send.put(j)#change the pipe sender to queue
 					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
 
@@ -159,7 +161,7 @@ p.start()
 core_count += 1
 job_receiver= job_q
 while True:
-	time.sleep(5)
+	#time.sleep(5)
 	while not job_q.empty():
 		job_now = job_receiver.get()
 		print(job_now.job_info())

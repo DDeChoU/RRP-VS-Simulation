@@ -10,8 +10,8 @@ class Job_Report:
 		'''
 		self.job_id = job.job_id
 		self.task_id = job.task_id
-		print("DDL: "+str(job.arb_ddl))
-		print("Now: "+str(accomplished_time))
+		#print("DDL: "+str(job.arb_ddl))
+		#print("Now: "+str(accomplished_time))
 		if job.arb_ddl >= accomplished_time:
 			self.on_time = True
 		else:

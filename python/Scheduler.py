@@ -31,6 +31,7 @@ class Scheduler:
 		self.partition_task = {}
 		self.partition_task_period = {}
 		self.partition_task_density = {}
+		self.process_list = []
 		for i in range(len(pcpus)):
 			self.pcpus[pcpus[i].pcpu_id] = pcpus[i]
 
@@ -42,7 +43,7 @@ class Scheduler:
 		partition_list = self.generate_partitions(sum_af)
 		for i in range(len(partition_list)):
 			self.partitions[partition_list[i].partition_id] = partition_list[i]
-			self.partition_task[partition_list[i].partition_id] = {}
+			self.partition_task[partition_list[i].partition_id] = set()
 			self.partition_task_period[partition_list[i].partition_id] = 1000
 			self.partition_task_density[partition_list[i].partition_id] = 0
 		#invoke mulZ_FFD here
@@ -138,7 +139,7 @@ class Scheduler:
 			vals.append(val)
 		return vals
 
-	def run_system(self, simulator, mode, policy_name):
+	def run_system(self, simulator, mode, policy_name, terminate_pipe):
 		'''
 			Inputs:
 			simulator:			type: OS_Simulator instance; The OS_Simulator initiated
@@ -153,6 +154,7 @@ class Scheduler:
 		job_receive_pipe = Queue()
 		info_pipes = {}
 
+		self.process_list = []
 		core_count = 0 #for now, we have to require all 28 cores in a node and core_count can work there.
 
 		#run pcpus first
@@ -163,21 +165,28 @@ class Scheduler:
 			info_pipes[pcpu_id] = info_pipe_now
 			tempP = Process(target = pcpu_now.run_pcpu, args = (info_pipe_now, job_pipe_now, core_count))
 			tempP.start()
+			self.process_list.append(tempP)
 			core_count += 1
 
 		#run OS_Simulator
 		start_time = datetime.datetime.now()
+		#print(job_receive_pipe)
 		tempP = Process(target = simulator.generate_jobs, args = (start_time, job_receive_pipe, core_count))
 		tempP.start()
+		self.process_list.append(tempP)
 		core_count += 1
+
 
 		#run the scheduler, bind it to a seperate core 
 		#os.system("taskset -p -c " +str(core_count% os.cpu_count())+" "+str(os.getpid()))
 		while True:
+
 			#receive jobs from the simulator first, run scheduling policies on it and send it to pcpus
 			while not job_receive_pipe.empty():
 				self.total_jobs += 1
+				#print("Total_jobs: "+str(self.total_jobs))
 				job_now = job_receive_pipe.get()
+				print(job_now.job_info())
 				par_id = getattr(self, policy_name)(job_now)
 				if par_id is None:
 					#not schedulable job!
@@ -189,51 +198,68 @@ class Scheduler:
 			#receive execution info:
 			for (pcpu_id, _) in self.pcpus.items():
 				while not info_pipes[pcpu_id].empty():
+					
 					jr = info_pipes[pcpu_id].get()
 					if not jr.on_time:
 						self.failed_jobs += 1
+						print("Failed jobs: "+str(self.failed_jobs))
 					#can report to the user here by logging
-
+			if terminate_pipe.poll():
+				msg = terminate_pipe.recv()
+				print(msg)
+				for tempP in self.process_list:
+					tempP.terminate()
+					tempP.join()
+				#print(str(self.failed_jobs)+', '+str(self.total_jobs))
+				terminate_pipe.send([self.failed_jobs, self.total_jobs])
+				break
+			#print("One loop ends")
 
 	def best_fit(self, job_now):
 		#this version does not take mode into consideration yet
 		#for mode 1(partitioned scheduling), first judge whether the job has been allocated (check task id)
 		#calculate density based on time now?
-		
+		#print("In the best fit")		
 		time_now = datetime.datetime.now()
-		real_period = (job_now.arb_ddl - time_now).total_seconds*1000
-		density_now = job_now.WCET/float(job.real_period)
+		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
+		density_now = job_now.WCET/float(real_period)
 		closest_gap = 1000
 		smallest_id = None
+		#print("Number of partitions: "+str(len(self.partitions)))
 		for (par_id, partition_now) in self.partitions.items():
+			#print("testing: "+str(job_now.job_id in self.partition_task[par_id]))
 			#if so, directly, return the partition id
-			if job_now.job_id in self.partition_task:
+			if job_now.job_id in self.partition_task[par_id]:
 				return par_id
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
-			task_period = min(job_now.real_period, self.partition_task_period[par_id])
+			task_period = min(real_period, self.partition_task_period[par_id])
 			capacity = partition_now.af - (partition_now.reg - 1)/task_period
+			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
 			if temp_density > capacity:
 				continue
 			else:
+				#print("Find one fit")
 				if capacity - temp_density < closest_gap:
+					#print("Update the id")
 					closest_gap = capacity - temp_density
 					smallest_id = par_id
 		if smallest_id is not None:
 			self.partition_task_density[smallest_id] += density_now
 			self.partition_task_period[smallest_id] = min(self.partition_task_period[smallest_id], real_period)
 			self.partition_task[smallest_id].add(job_now.task_id)
+			#print("Updating")
 		return smallest_id
 
 	def first_fit(self, job_now):
 		time_now = datetime.datetime.now()
-		real_period = (job_now.arb_ddl - time_now).total_seconds*1000
-		density_now = job_now.WCET/float(job.real_period)
+		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
+		density_now = job_now.WCET/float(real_period)
 		for (par_id, partition_now) in self.partitions.items():
 			if job_now.job_id in self.partition_task:
 				return par_id
 			temp_density = self.partition_task_density[par_id] + density_now
-			task_period = min(job_now.real_period, self.partition_task_period[par_id])
+			task_period = min(real_period, self.partition_task_period[par_id])
 			capacity = partition_now.af - (partition_now.reg - 1)/task_period
 			if temp_density > capacity:
 				continue
@@ -248,8 +274,8 @@ class Scheduler:
 	def worst_fit(self, job_now):
 
 		time_now = datetime.datetime.now()
-		real_period = (job_now.arb_ddl - time_now).total_seconds*1000
-		density_now = job_now.WCET/float(job.real_period)
+		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
+		density_now = job_now.WCET/float(real_period)
 		largest  = -1
 		largest_id = None
 		for (par_id, partition_now) in self.partitions.items():
@@ -258,7 +284,7 @@ class Scheduler:
 				return par_id
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
-			task_period = min(job_now.real_period, self.partition_task_period[par_id])
+			task_period = min(real_period, self.partition_task_period[par_id])
 			capacity = partition_now.af - (partition_now.reg - 1)/task_period
 			if temp_density > capacity:
 				continue

@@ -180,9 +180,13 @@ class PCPU:
 		while True:
 			#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
 			# find the job to be running here: 
-			partition_now = self.par_dict[self.time_par_table[self.time_now]]
+			next_domain = self.time_par_table[self.time_now]
 			self.time_now += 1
 			self.time_now %= self.hyperperiod
+			if next_domain == -1:
+				continue
+			partition_now = self.par_dict[next_domain]
+			#print ("Running partition #"+partition_now.partition_id)
 			job_now = partition_now.schedule()
 			#execute it for 10 milliseconds by default:
 			execution_time = OS_Simulator.TIME_SLICE_LEN
