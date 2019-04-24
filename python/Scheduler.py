@@ -59,8 +59,8 @@ class Scheduler:
 		for x in range(len(partition_list)):
 			f = self.mulZ_FFD_Alloc(partition_list[x])
 			if f is None:
-				print("Error! Partitions not schedulable!!! Aborting!")
-				return False
+				raise Exception("Error! Partitions not schedulable!!! Aborting!")
+				return
 			pcpus_partitions[f].append(partition_list[x])
 			self.partition_pcpu_mapping[partition_list[x].partition_id] = f
 		for (pcpu_id, pcpu_now) in self.pcpus.items():
