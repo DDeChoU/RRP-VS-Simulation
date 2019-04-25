@@ -1,0 +1,95 @@
+Initialization in Scheduler starts.
+10
+10
+10
+10
+10
+10
+10
+10
+10
+Initialization in Scheduler is done.
+Sth. here???
+11
+Critical!
+Non Critical!
+Receive sth.
+Job 0: WCET is 2042; Deadline is: 2019-04-25 12:45:32.838977; Task id is: 4
+Receive sth.
+Job 1: WCET is 119; Deadline is: 2019-04-25 12:45:31.479982; Task id is: 5
+Receive sth.
+Job 2: WCET is 119; Deadline is: 2019-04-25 12:45:33.370979; Task id is: 5
+Receive sth.
+Job 3: WCET is 1602; Deadline is: 2019-04-25 12:45:36.768977; Task id is: 7
+Receive sth.
+Job 4: WCET is 2042; Deadline is: 2019-04-25 12:45:36.435983; Task id is: 4
+Receive sth.
+Job 5: WCET is 119; Deadline is: 2019-04-25 12:45:35.261975; Task id is: 5
+Receive sth.
+Job 6: WCET is 730; Deadline is: 2019-04-25 12:45:37.739976; Task id is: 0
+Receive sth.
+Job 7: WCET is 119; Deadline is: 2019-04-25 12:45:37.152978; Task id is: 5
+Receive sth.
+Job 8: WCET is 2042; Deadline is: 2019-04-25 12:45:40.032978; Task id is: 4
+Receive sth.
+Job 9: WCET is 1602; Deadline is: 2019-04-25 12:45:41.582980; Task id is: 7
+Receive sth.
+Job 10: WCET is 119; Deadline is: 2019-04-25 12:45:39.043977; Task id is: 5
+Receive sth.
+Job 11: WCET is 730; Deadline is: 2019-04-25 12:45:41.265983; Task id is: 0
+Receive sth.
+Job 12: WCET is 119; Deadline is: 2019-04-25 12:45:40.934986; Task id is: 5
+Receive sth.
+Job 13: WCET is 2042; Deadline is: 2019-04-25 12:45:43.629974; Task id is: 4
+Receive sth.
+Job 14: WCET is 119; Deadline is: 2019-04-25 12:45:42.825976; Task id is: 5
+Receive sth.
+Job 15: WCET is 730; Deadline is: 2019-04-25 12:45:44.791977; Task id is: 0
+Receive sth.
+Job 16: WCET is 890; Deadline is: 2019-04-25 12:45:45.240975; Task id is: 2
+Receive sth.
+Job 17: WCET is 1602; Deadline is: 2019-04-25 12:45:46.396986; Task id is: 7
+Receive sth.
+Job 18: WCET is 4122; Deadline is: 2019-04-25 12:45:47.398982; Task id is: 3
+Receive sth.
+Job 19: WCET is 119; Deadline is: 2019-04-25 12:45:44.716974; Task id is: 5
+Receive sth.
+Job 20: WCET is 2042; Deadline is: 2019-04-25 12:45:47.226981; Task id is: 4
+Receive sth.
+Job 21: WCET is 119; Deadline is: 2019-04-25 12:45:46.607974; Task id is: 5
+Receive sth.
+Job 22: WCET is 730; Deadline is: 2019-04-25 12:45:48.317984; Task id is: 0
+Receive sth.
+Job 23: WCET is 890; Deadline is: 2019-04-25 12:45:49.116977; Task id is: 2
+Receive sth.
+Job 24: WCET is 1602; Deadline is: 2019-04-25 12:45:51.210978; Task id is: 7
+Receive sth.
+Job 25: WCET is 119; Deadline is: 2019-04-25 12:45:48.498976; Task id is: 5
+Receive sth.
+Job 26: WCET is 2042; Deadline is: 2019-04-25 12:45:50.823984; Task id is: 4
+Receive sth.
+Job 27: WCET is 4122; Deadline is: 2019-04-25 12:45:52.214975; Task id is: 3
+Receive sth.
+Job 28: WCET is 730; Deadline is: 2019-04-25 12:45:51.843987; Task id is: 0
+Receive sth.
+Job 29: WCET is 119; Deadline is: 2019-04-25 12:45:50.389976; Task id is: 5
+Receive sth.
+Job 30: WCET is 890; Deadline is: 2019-04-25 12:45:52.992985; Task id is: 2
+Receive sth.
+Job 31: WCET is 119; Deadline is: 2019-04-25 12:45:52.280981; Task id is: 5
+Receive sth.
+Job 32: WCET is 2042; Deadline is: 2019-04-25 12:45:54.420979; Task id is: 4
+Receive sth.
+Job 33: WCET is 1602; Deadline is: 2019-04-25 12:45:56.024980; Task id is: 7
+Receive sth.
+Job 34: WCET is 730; Deadline is: 2019-04-25 12:45:55.369982; Task id is: 0
+Receive sth.
+Job 35: WCET is 4122; Deadline is: 2019-04-25 12:45:57.030974; Task id is: 3
+Receive sth.
+Job 36: WCET is 508; Deadline is: 2019-04-25 12:45:56.476978; Task id is: 6
+Receive sth.
+Job 37: WCET is 119; Deadline is: 2019-04-25 12:45:54.171975; Task id is: 5
+Receive sth.
+Job 38: WCET is 67; Deadline is: 2019-04-25 12:45:52.945985; Task id is: 1
+End!!
+12, 39

@@ -8,6 +8,7 @@ from multiprocessing import Process, Queue
 import copy
 import datetime
 import sys
+import os
 class PCPU:
 	count_pcpu=0
 	def __init__(self):
@@ -178,11 +179,15 @@ class PCPU:
 				return
 
 	def run_pcpu(self, info_pipe, job_receiver, core_rank):
-		f = open("log/PCPU"+str(core_rank)+".log", "w")
+		f = open("log/PCPU"+str(self.pcpu_id)+".log", "w")
 		old = sys.stdout
 		sys.stdout = f
+
+		print("In the dead loop of pcpu now.")
+		r=os.popen("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
+		print(r.read()) 
 		while True:
-			os.system("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
+
 			# find the job to be running here: 
 			next_domain = self.time_par_table[self.time_now]
 			self.time_now += 1
@@ -215,7 +220,7 @@ class PCPU:
 				#insert jobs to corresponding partitions
 				par_now_id = job_now.par_id
 				self.par_dict[par_now_id].insert_job(job_now)
-
+			f.flush()
 #test code for partition: test passed
 '''
 p = PCPU()

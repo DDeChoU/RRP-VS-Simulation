@@ -1,0 +1,4 @@
+In the dead loop of pcpu now.
+pid 21107's current affinity list: 0-4,7-11
+pid 21107's new affinity list: 8
+

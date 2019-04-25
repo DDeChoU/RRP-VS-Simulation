@@ -106,7 +106,8 @@ class OS_Simulator:
 		sys.stdout = f
 		self.job_pipe_send = job_send
 		#print(self.job_pipe_send)
-		os.system("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
+		r = os.popen("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
+		print(r.read())
 		arrived_task_list = []
 		phases = []#use the phases array to record which job of the task is to come next
 		counter = 0
@@ -131,6 +132,7 @@ class OS_Simulator:
 						all_arrived = True
 						print("All tasks' first instances have arrived.")
 						break
+					f.flush()
 					arr_time_now = start_time+datetime.timedelta(self.task_list[counter].arr_time)
 
 
@@ -148,7 +150,6 @@ class OS_Simulator:
 					#print("Trying to send through pipes")
 					self.job_pipe_send.put(j)#change the pipe sender to queue
 					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
-
 
 
 '''

@@ -150,14 +150,21 @@ class Scheduler:
 		#invoked when everything is set up
 
 		#setup pipes: job receiver (from OS_Simulator), job sender(To pcpus), info receiver (from PCPUs), maintain a form for each pcpu
+
+		f = open("log/scheduler.log","w")
+		old = sys.stdout
+		sys.stdout = f
 		if not callable(getattr(self, policy_name)):
 			print("Invalid policy name given!")
+		print("Initialization in Scheduler starts.")
 		job_send_pipes = {}
 		job_receive_pipe = Queue()
 		info_pipes = {}
 
+
+
 		self.process_list = []
-		core_count = 0 #for now, we have to require all 28 cores in a node and core_count can work there.
+		#core_count = 0 #for now, we have to require all 28 cores in a node and core_count can work there.
 
 		#run pcpus first
 		for (pcpu_id, pcpu_now) in self.pcpus.items():
@@ -166,26 +173,35 @@ class Scheduler:
 			info_pipe_now = Queue()
 			info_pipes[pcpu_id] = info_pipe_now
 			tempP = Process(target = pcpu_now.run_pcpu, args = (info_pipe_now, job_pipe_now, cpu_list[cpu_count]))
+			print(len(cpu_list))
 			cpu_count = (cpu_count+1)%len(cpu_list)
 			tempP.start()
 			self.process_list.append(tempP)
-			core_count += 1
+			#core_count += 1
 
 		#run OS_Simulator
 		start_time = datetime.datetime.now()
 		#print(job_receive_pipe)
 		tempP = Process(target = simulator.generate_jobs, args = (start_time, job_receive_pipe, cpu_list[cpu_count]))
+		print(len(cpu_list))
 		cpu_count = (cpu_count+1)%len(cpu_list)
 		tempP.start()
 		self.process_list.append(tempP)
-		core_count += 1
 
+		print("Initialization in Scheduler is done.")
 
 		#run the scheduler, bind it to a seperate core 
-		f = open("log/scheduler.log","w")
-		old = sys.stdout
-		sys.stdout = f
-		os.system("taskset -p -c " +str(cpu_list[cpu_count])+" "+str(os.getpid()))
+		print("Sth. here???")
+		core_rank = cpu_list[cpu_count]
+		print(core_rank)
+		print("Critical!")
+		#cmd = "taskset -p -c " +str(core_rank)+" "+str(os.getpid())
+		#print(cmd)
+		#cmd = "taskset -p -c " +str(core_rank)+" "+str(os.getpid())
+		print("Non Critical!")
+		#print(cmd)
+		#r = os.popen(cmd)
+		#print(r.read())
 		cpu_count = (cpu_count+1)%len(cpu_list)
 		while True:
 
@@ -194,6 +210,7 @@ class Scheduler:
 				self.total_jobs += 1
 				#print("Total_jobs: "+str(self.total_jobs))
 				job_now = job_receive_pipe.get()
+				print("Receive sth.")
 				print(job_now.job_info())
 				par_id = getattr(self, policy_name)(job_now)
 				if par_id is None:
@@ -208,6 +225,7 @@ class Scheduler:
 				while not info_pipes[pcpu_id].empty():
 					
 					jr = info_pipes[pcpu_id].get()
+					
 					if not jr.on_time:
 						self.failed_jobs += 1
 						print("Failed jobs: "+str(self.failed_jobs))
@@ -218,9 +236,11 @@ class Scheduler:
 				for tempP in self.process_list:
 					tempP.terminate()
 					tempP.join()
-				#print(str(self.failed_jobs)+', '+str(self.total_jobs))
+				print(str(self.failed_jobs)+', '+str(self.total_jobs))
 				terminate_pipe.send([self.failed_jobs, self.total_jobs])
 				sys.out = old
+				f.flush()
+				f.close()
 				break
 			#print("One loop ends")
 
