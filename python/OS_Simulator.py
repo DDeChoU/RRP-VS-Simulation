@@ -78,8 +78,10 @@ class OS_Simulator:
 		num = len(utils)
 		for i in range(num):
 			util_now = utils[i]
-			wcet = random.randint(2, OS_Simulator.MAX_WCET)*OS_Simulator.TIME_SLICE_LEN
-			period = math.ceil(wcet/util_now*OS_Simulator.TIME_SLICE_LEN)
+			#wcet = random.randint(2, OS_Simulator.MAX_WCET)*OS_Simulator.TIME_SLICE_LEN
+			#period = math.ceil(wcet/util_now*OS_Simulator.TIME_SLICE_LEN)
+			period = random.randint(OS_Simulator.TIME_SLICE_LEN, 500*OS_Simulator.TIME_SLICE_LEN)
+			wcet = math.ceil(util_now*period)
 			deadline = period
 			#arrival = -math.log(1.0 - random.random())
 			arrival = random.randint(0, 3000*OS_Simulator.TIME_SLICE_LEN)
@@ -104,7 +106,7 @@ class OS_Simulator:
 		sys.stdout = f
 		self.job_pipe_send = job_send
 		#print(self.job_pipe_send)
-		#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
+		os.system("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
 		arrived_task_list = []
 		phases = []#use the phases array to record which job of the task is to come next
 		counter = 0

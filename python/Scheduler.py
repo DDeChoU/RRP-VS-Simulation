@@ -141,7 +141,7 @@ class Scheduler:
 			vals.append(val)
 		return vals
 
-	def run_system(self, simulator, mode, policy_name, terminate_pipe):
+	def run_system(self, simulator, mode, policy_name, terminate_pipe, cpu_count, cpu_list):
 		'''
 			Inputs:
 			simulator:			type: OS_Simulator instance; The OS_Simulator initiated
@@ -165,7 +165,8 @@ class Scheduler:
 			job_send_pipes[pcpu_id] = job_pipe_now
 			info_pipe_now = Queue()
 			info_pipes[pcpu_id] = info_pipe_now
-			tempP = Process(target = pcpu_now.run_pcpu, args = (info_pipe_now, job_pipe_now, core_count))
+			tempP = Process(target = pcpu_now.run_pcpu, args = (info_pipe_now, job_pipe_now, cpu_list[cpu_count]))
+			cpu_count = (cpu_count+1)%len(cpu_list)
 			tempP.start()
 			self.process_list.append(tempP)
 			core_count += 1
@@ -173,7 +174,8 @@ class Scheduler:
 		#run OS_Simulator
 		start_time = datetime.datetime.now()
 		#print(job_receive_pipe)
-		tempP = Process(target = simulator.generate_jobs, args = (start_time, job_receive_pipe, core_count))
+		tempP = Process(target = simulator.generate_jobs, args = (start_time, job_receive_pipe, cpu_list[cpu_count]))
+		cpu_count = (cpu_count+1)%len(cpu_list)
 		tempP.start()
 		self.process_list.append(tempP)
 		core_count += 1
@@ -183,7 +185,8 @@ class Scheduler:
 		f = open("scheduler.log","w")
 		old = sys.stdout
 		sys.stdout = f
-		#os.system("taskset -p -c " +str(core_count% os.cpu_count())+" "+str(os.getpid()))
+		os.system("taskset -p -c " +str(cpu_list[cpu_count])+" "+str(os.getpid()))
+		cpu_count = (cpu_count+1)%len(cpu_list)
 		while True:
 
 			#receive jobs from the simulator first, run scheduling policies on it and send it to pcpus

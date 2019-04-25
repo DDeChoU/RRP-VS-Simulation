@@ -182,7 +182,7 @@ class PCPU:
 		old = sys.stdout
 		sys.stdout = f
 		while True:
-			#os.system("taskset -p -c " +str(core_rank% os.cpu_count())+" "+str(os.getpid()))
+			os.system("taskset -p -c " +str(core_rank+" "+str(os.getpid()))
 			# find the job to be running here: 
 			next_domain = self.time_par_table[self.time_now]
 			self.time_now += 1
