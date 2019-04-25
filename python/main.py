@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		time.sleep(simulation_time)
 		terminate_pipe_send.send("End!!")
 		[failed_jobs, total_jobs] = terminate_pipe_send.recv()
-		result_file = open("result.log", "a")
+		result_file = open("log/result.log", "a")
 		#print("Jobs received: "+str(total_jobs)+" and job failed: "+str(failed_jobs))
 		result_file.write(str(failed_jobs)+', '+str(total_jobs)+'\n')
 		result_file.flush()

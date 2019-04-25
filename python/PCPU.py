@@ -178,11 +178,11 @@ class PCPU:
 				return
 
 	def run_pcpu(self, info_pipe, job_receiver, core_rank):
-		f = open("PCPU"+str(core_rank)+".log", "w")
+		f = open("log/PCPU"+str(core_rank)+".log", "w")
 		old = sys.stdout
 		sys.stdout = f
 		while True:
-			os.system("taskset -p -c " +str(core_rank+" "+str(os.getpid()))
+			os.system("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
 			# find the job to be running here: 
 			next_domain = self.time_par_table[self.time_now]
 			self.time_now += 1

@@ -182,7 +182,7 @@ class Scheduler:
 
 
 		#run the scheduler, bind it to a seperate core 
-		f = open("scheduler.log","w")
+		f = open("log/scheduler.log","w")
 		old = sys.stdout
 		sys.stdout = f
 		os.system("taskset -p -c " +str(cpu_list[cpu_count])+" "+str(os.getpid()))
