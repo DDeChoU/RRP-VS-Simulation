@@ -1,4 +1,4 @@
 In the dead loop of pcpu now.
-pid 21097's current affinity list: 0-4,7-11
-pid 21097's new affinity list: 1
+pid 24127's current affinity list: 18
+pid 24127's new affinity list: 18
 

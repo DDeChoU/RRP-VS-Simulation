@@ -80,7 +80,7 @@ class OS_Simulator:
 			util_now = utils[i]
 			#wcet = random.randint(2, OS_Simulator.MAX_WCET)*OS_Simulator.TIME_SLICE_LEN
 			#period = math.ceil(wcet/util_now*OS_Simulator.TIME_SLICE_LEN)
-			period = random.randint(OS_Simulator.TIME_SLICE_LEN, 500*OS_Simulator.TIME_SLICE_LEN)
+			period = random.randint(5*OS_Simulator.TIME_SLICE_LEN, 500*OS_Simulator.TIME_SLICE_LEN)
 			wcet = math.ceil(util_now*period)
 			deadline = period
 			#arrival = -math.log(1.0 - random.random())
@@ -97,6 +97,7 @@ class OS_Simulator:
 					is_periodic = False
 			task_now = Task(wcet, period, deadline, arrival, is_periodic, is_hard_rt)
 			task_set.append(task_now)
+			print("Task #"+str(task_now.task_id)+" density is "+str(util_now))
 		task_set = sorted(task_set, key=lambda x: x.arr_time)
 		return task_set
 

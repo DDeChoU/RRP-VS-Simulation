@@ -210,12 +210,11 @@ class Scheduler:
 				self.total_jobs += 1
 				#print("Total_jobs: "+str(self.total_jobs))
 				job_now = job_receive_pipe.get()
-				print("Receive sth.")
-				print(job_now.job_info())
 				par_id = getattr(self, policy_name)(job_now)
 				if par_id is None:
 					#not schedulable job!
 					self.failed_jobs += 1
+					print("Failed job: "+job_now.job_info())
 					continue
 				job_now.par_id = par_id
 				pcpu_id = self.partition_pcpu_mapping[par_id]
@@ -228,6 +227,7 @@ class Scheduler:
 					
 					if not jr.on_time:
 						self.failed_jobs += 1
+						print(jr.report())
 						print("Failed jobs: "+str(self.failed_jobs))
 					#can report to the user here by logging
 			if terminate_pipe.poll():
@@ -278,6 +278,8 @@ class Scheduler:
 			self.partition_task_period[smallest_id] = min(self.partition_task_period[smallest_id], real_period)
 			self.partition_task[smallest_id].add(job_now.task_id)
 			#print("Updating")
+		else:
+			print("Failed task density: "+str(density_now))
 		return smallest_id
 
 	def first_fit(self, job_now):

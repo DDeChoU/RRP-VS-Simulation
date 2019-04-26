@@ -52,7 +52,7 @@ if __name__ == "__main__":
 	simulation_time = 30 #in unit of seconds
 	f = open("log/Initialization.log","w")
 	old = sys.stdout
-	sys.stdout = f
+	#sys.stdout = f
 	cpu_affinity_list = []
 	cpu_counter = 0
 	#initialize pcpus

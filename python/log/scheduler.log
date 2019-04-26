@@ -1,95 +1,73 @@
 Initialization in Scheduler starts.
-10
-10
-10
-10
-10
-10
-10
-10
-10
+1
+1
+1
+1
+1
+1
+1
+1
+1
 Initialization in Scheduler is done.
 Sth. here???
-11
+18
 Critical!
 Non Critical!
-Receive sth.
-Job 0: WCET is 2042; Deadline is: 2019-04-25 12:45:32.838977; Task id is: 4
-Receive sth.
-Job 1: WCET is 119; Deadline is: 2019-04-25 12:45:31.479982; Task id is: 5
-Receive sth.
-Job 2: WCET is 119; Deadline is: 2019-04-25 12:45:33.370979; Task id is: 5
-Receive sth.
-Job 3: WCET is 1602; Deadline is: 2019-04-25 12:45:36.768977; Task id is: 7
-Receive sth.
-Job 4: WCET is 2042; Deadline is: 2019-04-25 12:45:36.435983; Task id is: 4
-Receive sth.
-Job 5: WCET is 119; Deadline is: 2019-04-25 12:45:35.261975; Task id is: 5
-Receive sth.
-Job 6: WCET is 730; Deadline is: 2019-04-25 12:45:37.739976; Task id is: 0
-Receive sth.
-Job 7: WCET is 119; Deadline is: 2019-04-25 12:45:37.152978; Task id is: 5
-Receive sth.
-Job 8: WCET is 2042; Deadline is: 2019-04-25 12:45:40.032978; Task id is: 4
-Receive sth.
-Job 9: WCET is 1602; Deadline is: 2019-04-25 12:45:41.582980; Task id is: 7
-Receive sth.
-Job 10: WCET is 119; Deadline is: 2019-04-25 12:45:39.043977; Task id is: 5
-Receive sth.
-Job 11: WCET is 730; Deadline is: 2019-04-25 12:45:41.265983; Task id is: 0
-Receive sth.
-Job 12: WCET is 119; Deadline is: 2019-04-25 12:45:40.934986; Task id is: 5
-Receive sth.
-Job 13: WCET is 2042; Deadline is: 2019-04-25 12:45:43.629974; Task id is: 4
-Receive sth.
-Job 14: WCET is 119; Deadline is: 2019-04-25 12:45:42.825976; Task id is: 5
-Receive sth.
-Job 15: WCET is 730; Deadline is: 2019-04-25 12:45:44.791977; Task id is: 0
-Receive sth.
-Job 16: WCET is 890; Deadline is: 2019-04-25 12:45:45.240975; Task id is: 2
-Receive sth.
-Job 17: WCET is 1602; Deadline is: 2019-04-25 12:45:46.396986; Task id is: 7
-Receive sth.
-Job 18: WCET is 4122; Deadline is: 2019-04-25 12:45:47.398982; Task id is: 3
-Receive sth.
-Job 19: WCET is 119; Deadline is: 2019-04-25 12:45:44.716974; Task id is: 5
-Receive sth.
-Job 20: WCET is 2042; Deadline is: 2019-04-25 12:45:47.226981; Task id is: 4
-Receive sth.
-Job 21: WCET is 119; Deadline is: 2019-04-25 12:45:46.607974; Task id is: 5
-Receive sth.
-Job 22: WCET is 730; Deadline is: 2019-04-25 12:45:48.317984; Task id is: 0
-Receive sth.
-Job 23: WCET is 890; Deadline is: 2019-04-25 12:45:49.116977; Task id is: 2
-Receive sth.
-Job 24: WCET is 1602; Deadline is: 2019-04-25 12:45:51.210978; Task id is: 7
-Receive sth.
-Job 25: WCET is 119; Deadline is: 2019-04-25 12:45:48.498976; Task id is: 5
-Receive sth.
-Job 26: WCET is 2042; Deadline is: 2019-04-25 12:45:50.823984; Task id is: 4
-Receive sth.
-Job 27: WCET is 4122; Deadline is: 2019-04-25 12:45:52.214975; Task id is: 3
-Receive sth.
-Job 28: WCET is 730; Deadline is: 2019-04-25 12:45:51.843987; Task id is: 0
-Receive sth.
-Job 29: WCET is 119; Deadline is: 2019-04-25 12:45:50.389976; Task id is: 5
-Receive sth.
-Job 30: WCET is 890; Deadline is: 2019-04-25 12:45:52.992985; Task id is: 2
-Receive sth.
-Job 31: WCET is 119; Deadline is: 2019-04-25 12:45:52.280981; Task id is: 5
-Receive sth.
-Job 32: WCET is 2042; Deadline is: 2019-04-25 12:45:54.420979; Task id is: 4
-Receive sth.
-Job 33: WCET is 1602; Deadline is: 2019-04-25 12:45:56.024980; Task id is: 7
-Receive sth.
-Job 34: WCET is 730; Deadline is: 2019-04-25 12:45:55.369982; Task id is: 0
-Receive sth.
-Job 35: WCET is 4122; Deadline is: 2019-04-25 12:45:57.030974; Task id is: 3
-Receive sth.
-Job 36: WCET is 508; Deadline is: 2019-04-25 12:45:56.476978; Task id is: 6
-Receive sth.
-Job 37: WCET is 119; Deadline is: 2019-04-25 12:45:54.171975; Task id is: 5
-Receive sth.
-Job 38: WCET is 67; Deadline is: 2019-04-25 12:45:52.945985; Task id is: 1
+Job #2 that belongs to Task #1's real-time nature: False
+Failed jobs: 1
+Job #5 that belongs to Task #1's real-time nature: False
+Failed jobs: 2
+Job #7 that belongs to Task #1's real-time nature: False
+Failed jobs: 3
+Job #10 that belongs to Task #1's real-time nature: False
+Failed jobs: 4
+Job #13 that belongs to Task #0's real-time nature: False
+Failed jobs: 5
+Job #12 that belongs to Task #1's real-time nature: False
+Failed jobs: 6
+Failed task density: 0.3695280774253565
+Failed job: Job 17: WCET is 661; Deadline is: 2019-04-26 11:56:02.075073; Task id is: 3
+Job #15 that belongs to Task #0's real-time nature: False
+Failed jobs: 8
+Failed task density: 0.41641110622438904
+Failed job: Job 18: WCET is 979; Deadline is: 2019-04-26 11:56:02.879371; Task id is: 1
+Failed task density: 0.6265092644666567
+Failed job: Job 19: WCET is 2404; Deadline is: 2019-04-26 11:56:04.434518; Task id is: 5
+Failed task density: 0.3711700278798667
+Failed job: Job 21: WCET is 661; Deadline is: 2019-04-26 11:56:03.911159; Task id is: 3
+Failed task density: 0.4285000223222688
+Failed job: Job 22: WCET is 979; Deadline is: 2019-04-26 11:56:05.271111; Task id is: 1
+Failed task density: 0.3739214402933445
+Failed job: Job 24: WCET is 661; Deadline is: 2019-04-26 11:56:05.770113; Task id is: 3
+Job #14 that belongs to Task #1's real-time nature: False
+Failed jobs: 14
+Failed task density: 0.6241362631736498
+Failed job: Job 25: WCET is 2404; Deadline is: 2019-04-26 11:56:08.381109; Task id is: 5
+Job #16 that belongs to Task #0's real-time nature: False
+Failed jobs: 16
+Failed task density: 0.42476533776003317
+Failed job: Job 27: WCET is 979; Deadline is: 2019-04-26 11:56:07.654088; Task id is: 1
+Failed task density: 0.3739104413783662
+Failed job: Job 28: WCET is 661; Deadline is: 2019-04-26 11:56:07.610126; Task id is: 3
+Failed task density: 0.3728699592043034
+Failed job: Job 30: WCET is 661; Deadline is: 2019-04-26 11:56:09.442129; Task id is: 3
+Failed task density: 0.4241719980624135
+Failed job: Job 31: WCET is 979; Deadline is: 2019-04-26 11:56:10.020326; Task id is: 1
+Failed task density: 0.6260851991531703
+Failed job: Job 32: WCET is 2404; Deadline is: 2019-04-26 11:56:12.289089; Task id is: 5
+Failed task density: 0.9139029790783688
+Failed job: Job 35: WCET is 298; Deadline is: 2019-04-26 11:56:09.382414; Task id is: 4
+Failed task density: 0.9586740701183223
+Failed job: Job 36: WCET is 298; Deadline is: 2019-04-26 11:56:09.780097; Task id is: 4
+Failed task density: 0.3736589121607604
+Failed job: Job 37: WCET is 661; Deadline is: 2019-04-26 11:56:11.286280; Task id is: 3
+Failed task density: 0.984443805767255
+Failed job: Job 38: WCET is 298; Deadline is: 2019-04-26 11:56:10.153078; Task id is: 4
+Failed task density: 0.42402135092596044
+Failed job: Job 39: WCET is 979; Deadline is: 2019-04-26 11:56:12.368102; Task id is: 1
+Failed task density: 0.9470690120926093
+Failed job: Job 40: WCET is 298; Deadline is: 2019-04-26 11:56:10.542101; Task id is: 4
+Failed task density: 0.9119006089537623
+Failed job: Job 42: WCET is 298; Deadline is: 2019-04-26 11:56:10.933079; Task id is: 4
 End!!
-12, 39
+28, 43
