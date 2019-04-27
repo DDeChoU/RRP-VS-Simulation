@@ -24,7 +24,11 @@ class Scheduler:
 											  the key is the partition_id, used for partitioned scheduling
 			partition_task_density:		type: dictionary; each item is a number indicating the total densities of tasks
 											  deployed on the partition, the key is the partition_id, used for partitionged scheduling.
+			total_jobs:					type: int; total number of jobs
 
+			failed_jobs:				type: int; total number of failed jobs
+
+			smallest_aaf:				type: double; the smallest aaf
 		'''
 		self.sum_af = sum_af
 		self.pcpus = {}
@@ -40,6 +44,8 @@ class Scheduler:
 		#counters used for statistical analysis
 		self.total_jobs = 0
 		self.failed_jobs = 0
+
+		self.smallest_aaf = 1
 
 		#invoke generate partitions here
 		partition_list = self.generate_partitions(sum_af)
@@ -65,8 +71,11 @@ class Scheduler:
 				return
 			pcpus_partitions[f].append(partition_list[x])
 			self.partition_pcpu_mapping[partition_list[x].partition_id] = f
+
 		for (pcpu_id, pcpu_now) in self.pcpus.items():
-			pcpu_now.set_partitions(pcpus_partitions[pcpu_id])
+			temp_samll = pcpu_now.set_partitions(pcpus_partitions[pcpu_id])
+			if temp_samll<self.smallest_aaf:
+				self.smallest_aaf = temp_samll
 		return True
 
 	def mulZ_FFD_Alloc(self, par):
@@ -328,3 +337,4 @@ class Scheduler:
 			self.partition_task_period[largest_id] = min(self.partition_task_period[largest_id], real_period)
 			self.partition_task[largest_id].add(job_now.task_id)
 		return largest_id
+

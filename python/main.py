@@ -61,12 +61,15 @@ if __name__ == "__main__":
 		for i in range(pcpu_num):
 			pcpu_now = PCPU()
 			pcpus.append(pcpu_now)
-		#initialize OS_Simulator
-		load = sum_af*load_ratio
-		simulator = OS_Simulator(load)
 
 		#initialize Scheduler
 		scheduler = Scheduler(sum_af, pcpus)
+
+		smallest_aaf = scheduler.smallest_aaf
+		#initialize OS_Simulator
+		load = sum_af*load_ratio
+		simulator = OS_Simulator(load, smallest_aaf)
+
 
 		#retrieve the cpu_affinity_list
 		r = os.popen("taskset -c -p "+str(os.getpid()))

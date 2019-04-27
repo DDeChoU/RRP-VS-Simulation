@@ -11,7 +11,7 @@ import sys
 class OS_Simulator:
 	TIME_SLICE_LEN = 10 #each time slice is 10 ms
 	MAX_WCET=100 #WCET ranges from 10 ms to 1000 ms
-	def __init__(self, load, hard_ratio = 0 ,has_sporadic = False, per_ratio = 0.5):
+	def __init__(self, load, highest_density=1, hard_ratio = 0 ,has_sporadic = False, per_ratio = 0.5):
 		'''
 
 		Args:
@@ -28,7 +28,7 @@ class OS_Simulator:
 		#generate the task set here based on the load
 		self.load = load
 
-		self.task_list = self.generate_tasks(load, has_sporadic, per_ratio, hard_ratio)
+		self.task_list = self.generate_tasks(load, has_sporadic, per_ratio, hard_ratio, highest_density)
 		self.total_tasks = len(self.task_list)
 		self.total_jobs = 0
 		self.success_jobs = 0
@@ -64,7 +64,7 @@ class OS_Simulator:
 			vals.append(val)
 		return vals
 
-	def generate_tasks(self, target_load, has_sporadic = False, per_ratio = 0.5, hard_ratio = 0):
+	def generate_tasks(self, target_load, has_sporadic = False, per_ratio = 0.5, hard_ratio = 0, highest_density = 1):
 		'''
 		 
 		 Args:
@@ -74,7 +74,7 @@ class OS_Simulator:
 		'''
 		task_set =[]
 		#set the min and max accordingly
-		utils = self.gen_kato_utilizations(target_load,0, 1)#generate utilizations based on the number of tasks generated
+		utils = self.gen_kato_utilizations(target_load,0, highest_density)#generate utilizations based on the number of tasks generated
 		num = len(utils)
 		for i in range(num):
 			util_now = utils[i]

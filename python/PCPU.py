@@ -33,6 +33,7 @@ class PCPU:
 
 	def set_partitions(self, par_list):
 		total_aaf = 0
+		smallest_aaf = 1
 		#first use magic7 to calculate the approximate availability factor
 		for i in range(len(par_list)):
 			self.par_dict[par_list[i].partition_id] = par_list[i]
@@ -41,11 +42,14 @@ class PCPU:
 			self.par_dict[par_list[i].partition_id].set_aaf(aaf_now)
 			#print(aaf_now)
 			total_aaf += aaf_now
+			if aaf_now<smallest_aaf:
+				smallest_aaf = aaf_now
 		if total_aaf>1:
 			print("Partitions on PCPU #"+str(self.pcpu_id)+" is not schedulable")
 
 		#use partition single to set up partitions.
 		self.partition_single()
+		return smallest_aaf
 
 	def AAF(self, af, reg):
 		if af==0:
