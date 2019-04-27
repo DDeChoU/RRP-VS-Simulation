@@ -97,7 +97,7 @@ class OS_Simulator:
 					is_periodic = False
 			task_now = Task(wcet, period, deadline, arrival, is_periodic, is_hard_rt)
 			task_set.append(task_now)
-			print("Task #"+str(task_now.task_id)+" density is "+str(util_now))
+			#print("Task #"+str(task_now.task_id)+" density is "+str(util_now))
 		task_set = sorted(task_set, key=lambda x: x.arr_time)
 		return task_set
 
