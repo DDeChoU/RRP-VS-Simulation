@@ -313,23 +313,40 @@ class Scheduler:
 		return smallest_id
 
 	def first_fit(self, job_now):
+		#this version does not take mode into consideration yet
+		
+		#calculate density based on time now?
+		#print("In the best fit")		
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
 		density_now = job_now.WCET/float(real_period)
+
+		#print("Number of partitions: "+str(len(self.partitions)))
 		for (par_id, partition_now) in self.partitions.items():
-			if job_now.job_id in self.partition_task:
+			#print("testing: "+str(job_now.job_id in self.partition_task[par_id]))
+			#for mode 1(partitioned scheduling), first judge whether the job has been allocated (check task id)
+			#if so, directly, return the partition id
+			if job_now.task_id in self.partition_task[par_id]:
+				self.partition_task_density[par_id] += density_now
+				self.partition_task_period[par_id] = min(self.partition_task_period[par_id], real_period)
+				self.periods[par_id][job_now.job_id] = real_period
+				self.densities[par_id][job_now.job_id] = density_now
 				return par_id
+			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
 			task_period = min(real_period, self.partition_task_period[par_id])
-			capacity = partition_now.af - (partition_now.reg - 1)/task_period
+			capacity = partition_now.aaf - (partition_now.reg - 1)/task_period
+			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
 			if temp_density > capacity:
 				continue
 			else:
-				#if the partition can schedule the task, immediately return after updates
 				self.partition_task_density[par_id] += density_now
 				self.partition_task_period[par_id] = min(self.partition_task_period[par_id], real_period)
 				self.partition_task[par_id].add(job_now.task_id)
+				self.periods[par_id][job_now.job_id] = real_period
+				self.densities[par_id][job_now.job_id] = density_now
 				return par_id
+
 		return None
 
 	def worst_fit(self, job_now):
@@ -337,25 +354,38 @@ class Scheduler:
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
 		density_now = job_now.WCET/float(real_period)
-		largest  = -1
+		largest_cap = 0
 		largest_id = None
+		#print("Number of partitions: "+str(len(self.partitions)))
 		for (par_id, partition_now) in self.partitions.items():
+			#print("testing: "+str(job_now.job_id in self.partition_task[par_id]))
+			#for mode 1(partitioned scheduling), first judge whether the job has been allocated (check task id)
 			#if so, directly, return the partition id
-			if job_now.job_id in self.partition_task:
+			if job_now.task_id in self.partition_task[par_id]:
+				self.partition_task_density[par_id] += density_now
+				self.partition_task_period[par_id] = min(self.partition_task_period[par_id], real_period)
+				self.periods[par_id][job_now.job_id] = real_period
+				self.densities[par_id][job_now.job_id] = density_now
 				return par_id
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
 			task_period = min(real_period, self.partition_task_period[par_id])
-			capacity = partition_now.af - (partition_now.reg - 1)/task_period
+			capacity = partition_now.aaf - (partition_now.reg - 1)/task_period
+			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
 			if temp_density > capacity:
 				continue
 			else:
-				if capacity > largest:
-					largest = capacity
+				#print("Find one fit")
+				if capacity>largest_cap:
+					largest_cap = capacity
 					largest_id = par_id
 		if largest_id is not None:
+			#update parameters
 			self.partition_task_density[largest_id] += density_now
 			self.partition_task_period[largest_id] = min(self.partition_task_period[largest_id], real_period)
 			self.partition_task[largest_id].add(job_now.task_id)
+			self.periods[largest_id][job_now.job_id] = real_period
+			self.densities[largest_id][job_now.job_id] = density_now
+			#print("Updating")
 		return largest_id
 

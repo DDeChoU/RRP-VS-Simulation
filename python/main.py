@@ -45,14 +45,59 @@ def analyze_command(a):
 
 #main function
 if __name__ == "__main__":
+
+
+	if(len(sys.argv)<5):
+		exit(0)
+	repeat_times = 1#fixed
+
+	sum_af = int(sys.argv[1])
+	pcpu_num = int(sys.argv[2])
+	simulation_time = int(sys.argv[3])
+	load_ratio = float(sys.argv[4])
+
+	policies = ["best_fit", "first_fit", "worst_fit"]
+	schedulability = []
+	total_jobs = []
+	failed_jobs = []
+	#initialize counters
+	for i in range(len(policies)):
+		schedulability.append(0)
+		total_jobs.append(0)
+		failed_jobs.append(0)
+
+	for i in range(repeat_times):
+		for j in range(len(policies))
+			temp_fail, temp_total = run_test(sum_af, load_ratio, pcpu_num, simulation_time, policies[j])
+			if temp_fail is None or temp_total is None:
+				j -= 1
+				continue
+			if temp_fail == temp_total:
+				schedulability[j] += 1
+			total_jobs[j] += temp_total
+			failed_jobs[j] += temp_fail
+
+	#change the file name here
+	file_name = "result_"+str(load_ratio)+".txt"
+	result_file = open(file_name, "a")
+	for j in range(len(policies)):
+		completion_ratio = (total_jobs[j]-failed_jobs[j])/float(total_jobs[j])
+		result_file.write(policies[j]+": "+"("+str(load_ratio)+", "+str(schedulability)+");("\
+			+str(load_ratio)+","+str(completion_ratio)+")")
+	result_file.flush()
+	result.close()
+
+
+
+def run_test(sum_af, load_ratio, pcpu_num, simulation_time, policy_name)
 	#set up parameters
 	pcpu_num = 8 #homogeneous pcpu for now
 	load_ratio =0.5
 	sum_af = 5
 	simulation_time = 30 #in unit of seconds
-	f = open("log/Initialization.log","w")
-	old = sys.stdout
-	sys.stdout = f
+	#f = open("log/Initialization.log","w")
+	#old = sys.stdout
+	#sys.stdout = f
 	cpu_affinity_list = []
 	cpu_counter = 0
 	#initialize pcpus
@@ -77,27 +122,26 @@ if __name__ == "__main__":
 		#print(cpu_affinity_list)
 
 	except Exception as err:
-		print(err)
-		sys.stdout = old
-		f.close()
-	else:
-
-		print("Initialization done.")
+		#print(err)
+		#sys.stdout = old
+		#f.close()
+		return None, None
 
 
-		terminate_pipe_read, terminate_pipe_send = Pipe()
-		p = Process(target = scheduler.run_system, args = (simulator, 1, "best_fit", terminate_pipe_read, cpu_counter, cpu_affinity_list))
-		p.start()
-		print("Game starts")
-		time.sleep(simulation_time)
-		terminate_pipe_send.send("End!!")
-		[failed_jobs, total_jobs] = terminate_pipe_send.recv()
-		result_file = open("log/result.log", "a")
-		#print("Jobs received: "+str(total_jobs)+" and job failed: "+str(failed_jobs))
-		result_file.write(str(failed_jobs)+', '+str(total_jobs)+'\n')
-		result_file.flush()
-		result_file.close()
+	terminate_pipe_read, terminate_pipe_send = Pipe()
+	p = Process(target = scheduler.run_system, args = (simulator, 1, policy_name, terminate_pipe_read, cpu_counter, cpu_affinity_list))
+	p.start()
+	time.sleep(simulation_time)
+	terminate_pipe_send.send("End!!")
+	[failed_jobs, total_jobs] = terminate_pipe_send.recv()
+	return failed_jobs, total_jobs
 
-		sys.stdout = old
-		f.close()
+	'''result_file = open("log/result.log", "a")
+	#print("Jobs received: "+str(total_jobs)+" and job failed: "+str(failed_jobs))
+	result_file.write(str(failed_jobs)+', '+str(total_jobs)+'\n')
+	result_file.flush()
+	result_file.close()
+
+	sys.stdout = old
+	f.close()'''
 

@@ -183,13 +183,13 @@ class PCPU:
 				return
 
 	def run_pcpu(self, info_pipe, job_receiver, core_rank):
-		f = open("log/PCPU"+str(self.pcpu_id)+".log", "w")
-		old = sys.stdout
-		sys.stdout = f
+		#f = open("log/PCPU"+str(self.pcpu_id)+".log", "w")
+		#old = sys.stdout
+		#sys.stdout = f
 
 		#print("In the dead loop of pcpu now.")
 		r=os.popen("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
-		print(r.read()) 
+		#print(r.read()) 
 		while True:
 
 			# find the job to be running here: 
@@ -224,7 +224,7 @@ class PCPU:
 				#insert jobs to corresponding partitions
 				par_now_id = job_now.par_id
 				self.par_dict[par_now_id].insert_job(job_now)
-			f.flush()
+			#f.flush()
 #test code for partition: test passed
 '''
 p = PCPU()
