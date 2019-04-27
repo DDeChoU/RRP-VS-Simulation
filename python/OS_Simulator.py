@@ -80,7 +80,7 @@ class OS_Simulator:
 			util_now = utils[i]
 			#wcet = random.randint(2, OS_Simulator.MAX_WCET)*OS_Simulator.TIME_SLICE_LEN
 			#period = math.ceil(wcet/util_now*OS_Simulator.TIME_SLICE_LEN)
-			period = random.randint(5*OS_Simulator.TIME_SLICE_LEN, 500*OS_Simulator.TIME_SLICE_LEN)
+			period = random.randint(5*OS_Simulator.TIME_SLICE_LEN, 2000*OS_Simulator.TIME_SLICE_LEN)
 			wcet = math.ceil(util_now*period)
 			deadline = period
 			#arrival = -math.log(1.0 - random.random())
@@ -148,7 +148,7 @@ class OS_Simulator:
 					phases[i]+= 1
 					j = Job(arrived_task_list[i].WCET, arb_ddl, arrived_task_list[i].task_id)
 					#send it through the pipe
-					#print("Trying to send through pipes")
+					print("Trying to send through pipes")
 					self.job_pipe_send.put(j)#change the pipe sender to queue
 					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
 

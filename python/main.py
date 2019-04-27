@@ -65,16 +65,19 @@ if __name__ == "__main__":
 		#initialize Scheduler
 		scheduler = Scheduler(sum_af, pcpus)
 
-		smallest_aaf = scheduler.smallest_aaf
+		largest_aaf = scheduler.largest_aaf
 		#initialize OS_Simulator
 		load = sum_af*load_ratio
-		simulator = OS_Simulator(load, smallest_aaf)
+		simulator = OS_Simulator(load, largest_aaf)
 
 
 		#retrieve the cpu_affinity_list
-		r = os.popen("taskset -c -p "+str(os.getpid()))
-		cpu_affinity_list = analyze_command(r.read())
-		print(cpu_affinity_list)
+		#r = os.popen("taskset -c -p "+str(os.getpid()))
+		#cpu_affinity_list = analyze_command(r.read())
+		#print(cpu_affinity_list)
+
+		#for test:
+		cpu_affinity_list = [0 for x in range(pcpu_num+2)]
 	except Exception as err:
 		print(err)
 		sys.stdout = old

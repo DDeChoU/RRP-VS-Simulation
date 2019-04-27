@@ -187,7 +187,7 @@ class PCPU:
 		old = sys.stdout
 		sys.stdout = f
 
-		print("In the dead loop of pcpu now.")
+		#print("In the dead loop of pcpu now.")
 		r=os.popen("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
 		print(r.read()) 
 		while True:
@@ -216,7 +216,7 @@ class PCPU:
 					partition_now.insert_job(job_now)
 				else:
 					accomplished_time = datetime.datetime.now() #not fair to report not real-time if it is smaller
-					jr = Job_Report(job_now, accomplished_time)
+					jr = Job_Report(job_now, accomplished_time, partition_now.partition_id)
 					info_pipe.put(jr)
 			#receive jobs here, allocate based on the partition_id
 			while not job_receiver.empty():

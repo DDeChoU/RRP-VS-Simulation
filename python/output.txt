@@ -1,0 +1,938 @@
+Task #0 density is 0.11045696898841396
+Task #1 density is 0.13789281291766617
+Task #2 density is 0.1378665986339577
+Task #3 density is 0.043502918656698066
+Task #4 density is 0.06452368057984768
+Task #5 density is 0.0571168330048056
+Task #6 density is 0.002511309287794813
+Task #7 density is 0.10292261000801337
+Task #8 density is 0.06214381175364239
+Task #9 density is 0.11511045146988463
+Task #10 density is 0.014573904522378785
+Task #11 density is 0.09990675162035542
+Task #12 density is 0.10527087432535155
+Task #13 density is 0.11850916419292808
+Task #14 density is 0.13688660603709418
+Task #15 density is 0.004062850031145465
+Task #16 density is 0.08406715929199837
+Task #17 density is 0.12498315246133965
+Task #18 density is 0.03998459622038267
+Task #19 density is 0.10507138697828407
+Task #20 density is 0.08600754271886513
+Task #21 density is 0.13076750246693897
+Task #22 density is 0.12589685615872895
+Task #23 density is 0.1244091560573741
+Task #24 density is 0.008675052642472465
+Task #25 density is 0.13795423098984758
+Task #26 density is 0.11657524929369982
+Task #27 density is 0.021122988168409008
+Task #28 density is 0.035450103104522644
+Task #29 density is 0.045776877417158524
+Initialization done.
+Initialization in Scheduler starts.
+10
+10
+10
+10
+10
+10
+10
+10
+10
+Initialization in Scheduler is done.
+Recording 0
+*************************************
+Recording 1
+*************************************
+Recording 2
+*************************************
+3 is not recorded! 
+3 is not recorded! 
+Recording 4
+*************************************
+Recording 5
+*************************************
+Recording 6
+*************************************
+Recording 7
+*************************************
+Recording 9
+*************************************
+8 is not recorded! 
+8 is not recorded! 
+Recording 10
+*************************************
+Recording 11
+*************************************
+Recording 12
+*************************************
+Recording 13
+*************************************
+Recording 14
+*************************************
+Recording 15
+*************************************
+16 is not recorded! 
+16 is not recorded! 
+Recording 17
+*************************************
+Recording 18
+*************************************
+Recording 19
+*************************************
+Recording 20
+*************************************
+Recording 21
+*************************************
+Recording 22
+*************************************
+Recording 23
+*************************************
+Recording 24
+*************************************
+Recording 25
+*************************************
+26 is not recorded! 
+26 is not recorded! 
+Recording 27
+*************************************
+Recording 28
+*************************************
+29 is not recorded! 
+29 is not recorded! 
+Recording 30
+*************************************
+Recording 31
+*************************************
+Recording 32
+*************************************
+Recording 33
+*************************************
+Recording 34
+*************************************
+Recording 35
+*************************************
+Recording 36
+*************************************
+Recording 37
+*************************************
+Recording 38
+*************************************
+Recording 39
+*************************************
+Recording 40
+*************************************
+Recording 41
+*************************************
+Recording 42
+*************************************
+Recording 43
+*************************************
+Recording 44
+*************************************
+Recording 45
+*************************************
+Recording 46
+*************************************
+Recording 47
+*************************************
+Recording 48
+*************************************
+Recording 49
+*************************************
+Recording 50
+*************************************
+Recording 51
+*************************************
+Recording 52
+*************************************
+Recording 53
+*************************************
+Recording 54
+*************************************
+Recording 55
+*************************************
+Recording 56
+*************************************
+Recording 57
+*************************************
+Recording 58
+*************************************
+Recording 59
+*************************************
+Recording 60
+*************************************
+Recording 61
+*************************************
+Recording 62
+*************************************
+Recording 63
+*************************************
+Recording 64
+*************************************
+Recording 65
+*************************************
+Recording 66
+*************************************
+Recording 67
+*************************************
+Recording 68
+*************************************
+Recording 69
+*************************************
+Recording 70
+*************************************
+Recording 71
+*************************************
+Recording 72
+*************************************
+Recording 73
+*************************************
+Recording 74
+*************************************
+Recording 75
+*************************************
+Recording 76
+*************************************
+Recording 77
+*************************************
+Recording 78
+*************************************
+Recording 79
+*************************************
+Recording 80
+*************************************
+Recording 81
+*************************************
+Job #41 that belongs to Task #16's real-time nature: False
+Failed jobs: 1
+Recording 82
+*************************************
+Recording 83
+*************************************
+Recording 84
+*************************************
+Recording 85
+*************************************
+Recording 86
+*************************************
+Recording 87
+*************************************
+Recording 88
+*************************************
+Recording 89
+*************************************
+Recording 90
+*************************************
+Recording 91
+*************************************
+Recording 92
+*************************************
+Recording 93
+*************************************
+Recording 94
+*************************************
+Recording 95
+*************************************
+Recording 96
+*************************************
+Recording 97
+*************************************
+Recording 98
+*************************************
+Recording 99
+*************************************
+Recording 100
+*************************************
+Recording 101
+*************************************
+Recording 102
+*************************************
+Recording 103
+*************************************
+Recording 104
+*************************************
+Recording 105
+*************************************
+Recording 106
+*************************************
+Recording 107
+*************************************
+Recording 108
+*************************************
+Recording 109
+*************************************
+Job #56 that belongs to Task #9's real-time nature: False
+Failed jobs: 2
+Recording 110
+*************************************
+Recording 111
+*************************************
+Recording 112
+*************************************
+Recording 113
+*************************************
+Job #96 that belongs to Task #4's real-time nature: False
+Failed jobs: 3
+Recording 114
+*************************************
+Recording 115
+*************************************
+Job #60 that belongs to Task #10's real-time nature: False
+Failed jobs: 4
+Job #112 that belongs to Task #3's real-time nature: False
+Failed jobs: 5
+Recording 116
+*************************************
+Job #69 that belongs to Task #8's real-time nature: False
+Failed jobs: 6
+Recording 117
+*************************************
+Recording 118
+*************************************
+Recording 119
+*************************************
+Recording 120
+*************************************
+Recording 121
+*************************************
+Recording 122
+*************************************
+Recording 123
+*************************************
+Recording 124
+*************************************
+Recording 125
+*************************************
+Recording 126
+*************************************
+Recording 127
+*************************************
+Recording 128
+*************************************
+Recording 129
+*************************************
+Recording 130
+*************************************
+Recording 131
+*************************************
+Recording 132
+*************************************
+Recording 133
+*************************************
+Recording 134
+*************************************
+Recording 135
+*************************************
+Recording 136
+*************************************
+Job #122 that belongs to Task #21's real-time nature: False
+Failed jobs: 7
+Recording 137
+*************************************
+Job #88 that belongs to Task #13's real-time nature: False
+Failed jobs: 8
+Recording 138
+*************************************
+Recording 139
+*************************************
+Job #130 that belongs to Task #4's real-time nature: False
+Failed jobs: 9
+Recording 140
+*************************************
+Recording 141
+*************************************
+Recording 142
+*************************************
+Recording 143
+*************************************
+Job #126 that belongs to Task #29's real-time nature: False
+Failed jobs: 10
+Recording 144
+*************************************
+Job #111 that belongs to Task #28's real-time nature: FalseA task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+A task has arrived
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipes
+Trying to send through pipesGame starts
+
+Trying to send through pipes
+
+Failed jobs: 11
+Recording 145
+*************************************
+Recording 146
+*************************************
+Recording 147
+*************************************
+Recording 148
+*************************************
+Recording 149
+*************************************
+Recording 150
+*************************************
+Recording 151
+*************************************
+Recording 152
+*************************************
+Recording 153
+*************************************
+Recording 154
+*************************************
+Recording 155
+*************************************
+Recording 156
+*************************************
+Recording 157
+*************************************
+Job #118 that belongs to Task #22's real-time nature: False
+Failed jobs: 12
+Job #140 that belongs to Task #3's real-time nature: False
+Failed jobs: 13
+Recording 158
+*************************************
+Job #147 that belongs to Task #3's real-time nature: False
+Failed jobs: 14
+Job #125 that belongs to Task #27's real-time nature: False
+Failed jobs: 15
+Recording 159
+*************************************
+Recording 160
+*************************************
+Job #138 that belongs to Task #29's real-time nature: False
+Failed jobs: 16
+Recording 161
+*************************************
+Recording 162
+*************************************
+Recording 163
+*************************************
+Job #95 that belongs to Task #24's real-time nature: False
+Failed jobs: 17
+Recording 164
+*************************************
+Recording 165
+*************************************
+Recording 166
+*************************************
+Recording 167
+*************************************
+Recording 168
+*************************************
+Recording 169
+*************************************
+Recording 170
+*************************************
+Recording 171
+*************************************
+Recording 172
+*************************************
+Recording 173
+*************************************
+Recording 174
+*************************************
+Job #133 that belongs to Task #12's real-time nature: False
+Failed jobs: 18
+Recording 175
+*************************************
+Recording 176
+*************************************
+Recording 177
+*************************************
+Recording 178
+*************************************
+Recording 179
+*************************************
+Recording 180
+*************************************
+Job #141 that belongs to Task #28's real-time nature: False
+Failed jobs: 19
+Recording 181
+*************************************
+Recording 182
+*************************************
+Recording 183
+*************************************
+Recording 184
+*************************************
+Recording 185
+*************************************
+Recording 186
+*************************************
+Recording 187
+*************************************
+Job #161 that belongs to Task #22's real-time nature: False
+Failed jobs: 20
+Recording 188
+*************************************
+Recording 189
+*************************************
+Recording 190
+*************************************
+Recording 191
+*************************************
+Job #154 that belongs to Task #7's real-time nature: False
+Failed jobs: 21
+Recording 192
+*************************************
+Recording 193
+*************************************
+Job #176 that belongs to Task #4's real-time nature: False
+Failed jobs: 22
+Recording 194
+*************************************
+Recording 195
+*************************************
+Recording 196
+*************************************
+Recording 197
+*************************************
+Job #167 that belongs to Task #26's real-time nature: False
+Failed jobs: 23
+Recording 198
+*************************************
+Job #120 that belongs to Task #15's real-time nature: False
+Failed jobs: 24
+Job #188 that belongs to Task #3's real-time nature: False
+Failed jobs: 25
+Recording 199
+*************************************
+Recording 200
+*************************************
+Job #184 that belongs to Task #4's real-time nature: False
+Failed jobs: 26
+Recording 201
+*************************************
+Job #192 that belongs to Task #3's real-time nature: False
+Failed jobs: 27
+Recording 202
+*************************************
+Recording 203
+*************************************
+Recording 204
+*************************************
+Recording 205
+*************************************
+Recording 206
+*************************************
+Recording 207
+*************************************
+Recording 208
+*************************************
+Recording 209
+*************************************
+Recording 210
+*************************************
+Recording 211
+*************************************
+Recording 212
+*************************************
+Recording 213
+*************************************
+Recording 214
+*************************************
+Recording 215
+*************************************
+Recording 216
+*************************************
+Recording 217
+*************************************
+Recording 218
+*************************************
+Recording 219
+*************************************
+Recording 220
+*************************************
+Recording 221
+*************************************
+Recording 222
+*************************************
+Recording 223
+*************************************
+Recording 224
+*************************************
+Recording 225
+*************************************
+Recording 226
+*************************************
+Recording 227
+*************************************
+Recording 228
+*************************************
+Recording 229
+*************************************
+Job #139 that belongs to Task #17's real-time nature: False
+Failed jobs: 28
+Recording 230
+*************************************
+Recording 231
+*************************************
+Job #201 that belongs to Task #29's real-time nature: False
+Failed jobs: 29
+Recording 232
+*************************************
+Job #230 that belongs to Task #3's real-time nature: False
+Failed jobs: 30
+Recording 233
+*************************************
+Recording 234
+*************************************
+Recording 235
+*************************************
+Recording 236
+*************************************
+Recording 237
+*************************************
+Recording 238
+*************************************
+Recording 239
+*************************************
+Recording 240
+*************************************
+Recording 241
+*************************************
+Recording 242
+*************************************
+Recording 243
+*************************************
+Recording 244
+*************************************
+Recording 245
+*************************************
+Recording 246
+*************************************
+Recording 247
+*************************************
+Recording 248
+*************************************
+Recording 249
+*************************************
+Recording 250
+*************************************
+Recording 251
+*************************************
+Recording 252
+*************************************
+Recording 253
+*************************************
+Recording 254
+*************************************
+Recording 255
+*************************************
+Recording 256
+*************************************
+Job #205 that belongs to Task #12's real-time nature: False
+Failed jobs: 31
+Recording 257
+*************************************
+Job #244 that belongs to Task #4's real-time nature: False
+Failed jobs: 32
+Recording 258
+*************************************
+Recording 259
+*************************************
+Recording 260
+*************************************
+Recording 261
+*************************************
+Job #239 that belongs to Task #29's real-time nature: False
+Failed jobs: 33
+Recording 262
+*************************************
+Recording 263
+*************************************
+Job #260 that belongs to Task #3's real-time nature: False
+Failed jobs: 34
+Recording 264
+*************************************
+Recording 265
+*************************************
+Recording 266
+*************************************

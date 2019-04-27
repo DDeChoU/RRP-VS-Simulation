@@ -28,7 +28,13 @@ class Scheduler:
 
 			failed_jobs:				type: int; total number of failed jobs
 
-			smallest_aaf:				type: double; the smallest aaf
+			largest_aaf:				type: double; the smallest aaf
+
+			densities:					type: dictionary of dictionary; key: partition_id, value: a dictionary, 
+											  the key is the job_id, value is its denstiy
+
+			periods:					type: dictionary of dictionary; key: partition id, value: a dictionary, 
+											  the key is the job_id, value is its density
 		'''
 		self.sum_af = sum_af
 		self.pcpus = {}
@@ -45,8 +51,9 @@ class Scheduler:
 		self.total_jobs = 0
 		self.failed_jobs = 0
 
-		self.smallest_aaf = 1
-
+		self.largest_aaf = 1
+		self.densities = {}
+		self.periods = {}
 		#invoke generate partitions here
 		partition_list = self.generate_partitions(sum_af)
 		for i in range(len(partition_list)):
@@ -54,6 +61,8 @@ class Scheduler:
 			self.partition_task[partition_list[i].partition_id] = set()
 			self.partition_task_period[partition_list[i].partition_id] = 1000
 			self.partition_task_density[partition_list[i].partition_id] = 0
+			self.densities[partition_list[i].partition_id] = {}
+			self.periods[partition_list[i].partition_id] = {}
 		#invoke mulZ_FFD here
 		self.mulZ_FFD(partition_list)
 
@@ -74,8 +83,8 @@ class Scheduler:
 
 		for (pcpu_id, pcpu_now) in self.pcpus.items():
 			temp_samll = pcpu_now.set_partitions(pcpus_partitions[pcpu_id])
-			if temp_samll<self.smallest_aaf:
-				self.smallest_aaf = temp_samll
+			if temp_samll<self.largest_aaf:
+				self.largest_aaf = temp_samll
 		return True
 
 	def mulZ_FFD_Alloc(self, par):
@@ -182,7 +191,7 @@ class Scheduler:
 			info_pipe_now = Queue()
 			info_pipes[pcpu_id] = info_pipe_now
 			tempP = Process(target = pcpu_now.run_pcpu, args = (info_pipe_now, job_pipe_now, cpu_list[cpu_count]))
-			print(len(cpu_list))
+			#print(len(cpu_list))
 			cpu_count = (cpu_count+1)%len(cpu_list)
 			tempP.start()
 			self.process_list.append(tempP)
@@ -192,26 +201,14 @@ class Scheduler:
 		start_time = datetime.datetime.now()
 		#print(job_receive_pipe)
 		tempP = Process(target = simulator.generate_jobs, args = (start_time, job_receive_pipe, cpu_list[cpu_count]))
-		print(len(cpu_list))
+		#print(len(cpu_list))
 		cpu_count = (cpu_count+1)%len(cpu_list)
 		tempP.start()
 		self.process_list.append(tempP)
 
 		print("Initialization in Scheduler is done.")
 
-		#run the scheduler, bind it to a seperate core 
-		print("Sth. here???")
-		core_rank = cpu_list[cpu_count]
-		print(core_rank)
-		print("Critical!")
-		#cmd = "taskset -p -c " +str(core_rank)+" "+str(os.getpid())
-		#print(cmd)
-		#cmd = "taskset -p -c " +str(core_rank)+" "+str(os.getpid())
-		print("Non Critical!")
-		#print(cmd)
-		#r = os.popen(cmd)
-		#print(r.read())
-		cpu_count = (cpu_count+1)%len(cpu_list)
+
 		while True:
 
 			#receive jobs from the simulator first, run scheduling policies on it and send it to pcpus
@@ -233,11 +230,29 @@ class Scheduler:
 				while not info_pipes[pcpu_id].empty():
 					
 					jr = info_pipes[pcpu_id].get()
-					
+					par_id = jr.par_id
+					job_id = jr.job_id
+					if job_id in self. densities[par_id]:
+						density_now = self.densities[par_id].pop(job_id)
+						self.partition_task_density[par_id] -= density_now
+					else:
+						print(job_id+" is not recorded! ")
+					if job_id in self.periods[par_id]:
+						self.periods[par_id].pop(job_id)
+					else:
+						print(job_id+" is not recorded! ")
+
+					period_set = self.periods[par_id]
+					if len(period_set)==0:
+						self.partition_task_period[par_id] = 1000
+					else:
+						s_key = min(period_set, key = period_set.get)
+						self.partition_task_period[par_id] = self.periods[par_id][s_key]
+
 					if not jr.on_time:
 						self.failed_jobs += 1
 						print(jr.report())
-						print("Failed jobs: "+str(self.failed_jobs))
+						#print("Failed jobs: "+str(self.failed_jobs))
 					#can report to the user here by logging
 			if terminate_pipe.poll():
 				msg = terminate_pipe.recv()
@@ -255,7 +270,7 @@ class Scheduler:
 
 	def best_fit(self, job_now):
 		#this version does not take mode into consideration yet
-		#for mode 1(partitioned scheduling), first judge whether the job has been allocated (check task id)
+		
 		#calculate density based on time now?
 		#print("In the best fit")		
 		time_now = datetime.datetime.now()
@@ -266,8 +281,13 @@ class Scheduler:
 		#print("Number of partitions: "+str(len(self.partitions)))
 		for (par_id, partition_now) in self.partitions.items():
 			#print("testing: "+str(job_now.job_id in self.partition_task[par_id]))
+			#for mode 1(partitioned scheduling), first judge whether the job has been allocated (check task id)
 			#if so, directly, return the partition id
-			if job_now.job_id in self.partition_task[par_id]:
+			if job_now.task_id in self.partition_task[par_id]:
+				self.partition_task_density[par_id] += density_now
+				self.partition_task_period[par_id] = min(self.partition_task_period[par_id], real_period)
+				self.periods[par_id][job_now.job_id] = real_period
+				self.densities[par_id][job_now.job_id] = density_now
 				return par_id
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
@@ -283,12 +303,13 @@ class Scheduler:
 					closest_gap = capacity - temp_density
 					smallest_id = par_id
 		if smallest_id is not None:
+			#update parameters
 			self.partition_task_density[smallest_id] += density_now
 			self.partition_task_period[smallest_id] = min(self.partition_task_period[smallest_id], real_period)
 			self.partition_task[smallest_id].add(job_now.task_id)
+			self.periods[smallest_id][job_now.job_id] = real_period
+			self.densities[smallest_id][job_now.job_id] = density_now
 			#print("Updating")
-		else:
-			print("Failed task density: "+str(density_now))
 		return smallest_id
 
 	def first_fit(self, job_now):
