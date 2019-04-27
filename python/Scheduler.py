@@ -263,7 +263,7 @@ class Scheduler:
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
 			task_period = min(real_period, self.partition_task_period[par_id])
-			capacity = partition_now.af - (partition_now.reg - 1)/task_period
+			capacity = partition_now.aaf - (partition_now.reg - 1)/task_period
 			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
 			if temp_density > capacity:
 				continue
