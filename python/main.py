@@ -52,7 +52,7 @@ if __name__ == "__main__":
 	simulation_time = 30 #in unit of seconds
 	f = open("log/Initialization.log","w")
 	old = sys.stdout
-	#sys.stdout = f
+	sys.stdout = f
 	cpu_affinity_list = []
 	cpu_counter = 0
 	#initialize pcpus
@@ -72,12 +72,10 @@ if __name__ == "__main__":
 
 
 		#retrieve the cpu_affinity_list
-		#r = os.popen("taskset -c -p "+str(os.getpid()))
-		#cpu_affinity_list = analyze_command(r.read())
+		r = os.popen("taskset -c -p "+str(os.getpid()))
+		cpu_affinity_list = analyze_command(r.read())
 		#print(cpu_affinity_list)
 
-		#for test:
-		cpu_affinity_list = [0 for x in range(pcpu_num+2)]
 	except Exception as err:
 		print(err)
 		sys.stdout = old
