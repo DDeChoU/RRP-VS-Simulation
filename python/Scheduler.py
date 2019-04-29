@@ -169,7 +169,7 @@ class Scheduler:
 
 		#setup pipes: job receiver (from OS_Simulator), job sender(To pcpus), info receiver (from PCPUs), maintain a form for each pcpu
 
-		f = open("log/scheduler.log","w")
+		f = open("log/scheduler.log","a")
 		old = sys.stdout
 		sys.stdout = f
 		if not callable(getattr(self, policy_name)):
@@ -275,7 +275,7 @@ class Scheduler:
 		#print("In the best fit")		
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
-		density_now = job_now.WCET/float(real_period)
+		density_now = (job_now.WCET+0.1)/float(real_period)
 		closest_gap = 1000
 		smallest_id = None
 		#print("Number of partitions: "+str(len(self.partitions)))
@@ -292,7 +292,7 @@ class Scheduler:
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
 			task_period = min(real_period, self.partition_task_period[par_id])
-			capacity = partition_now.aaf - (partition_now.reg - 1)/task_period
+			capacity = partition_now.af - (partition_now.reg - 1)/task_period
 			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
 			if temp_density > capacity:
 				continue
@@ -319,7 +319,7 @@ class Scheduler:
 		#print("In the best fit")		
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
-		density_now = job_now.WCET/float(real_period)
+		density_now = (job_now.WCET+0.1)/float(real_period)
 
 		#print("Number of partitions: "+str(len(self.partitions)))
 		for (par_id, partition_now) in self.partitions.items():
@@ -335,7 +335,7 @@ class Scheduler:
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
 			task_period = min(real_period, self.partition_task_period[par_id])
-			capacity = partition_now.aaf - (partition_now.reg - 1)/task_period
+			capacity = partition_now.af - (partition_now.reg - 1)/task_period
 			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
 			if temp_density > capacity:
 				continue
@@ -353,7 +353,7 @@ class Scheduler:
 
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
-		density_now = job_now.WCET/float(real_period)
+		density_now = (job_now.WCET+0.1)/float(real_period)
 		largest_cap = 0
 		largest_id = None
 		#print("Number of partitions: "+str(len(self.partitions)))
@@ -370,7 +370,7 @@ class Scheduler:
 			#or else, find the Best Fit based on the capacity left of each partition
 			temp_density = self.partition_task_density[par_id] + density_now
 			task_period = min(real_period, self.partition_task_period[par_id])
-			capacity = partition_now.aaf - (partition_now.reg - 1)/task_period
+			capacity = partition_now.af - (partition_now.reg - 1)/task_period
 			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
 			if temp_density > capacity:
 				continue

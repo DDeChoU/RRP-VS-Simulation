@@ -102,7 +102,7 @@ class OS_Simulator:
 		return task_set
 
 	def generate_jobs(self, start_time, job_send, core_rank):
-		f = open("log/job_generation.log", "w")
+		f = open("log/job_generation.log", "a")
 		old = sys.stdout
 		sys.stdout = f
 		self.job_pipe_send = job_send

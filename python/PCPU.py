@@ -144,7 +144,7 @@ class PCPU:
 					for j in range(num):
 						time_slice_now = firstAvailableTimeSlice + j*interval
 						if time_slice_now>=self.hyperperiod or self.time_par_table[time_slice_now]!= -1:
-							print("Allocation conflicts!")
+							#print("Allocation conflicts!")
 							continue
 						self.time_par_table[time_slice_now] = partition_list[i].partition_id
 						#timeslices[i].append(time_slice_now)

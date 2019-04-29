@@ -105,8 +105,11 @@ if __name__ == "__main__":
 
 	if(len(sys.argv)<5):
 		exit(0)
-	repeat_times = 500#fixed
-
+	repeat_times = 200#fixed
+	f = open("log/main.log", "w")
+	old = sys.stdout
+	sys.stdout = f
+	
 	sum_af = int(sys.argv[1])
 	pcpu_num = int(sys.argv[2])
 	simulation_time = int(sys.argv[3])
@@ -117,24 +120,26 @@ if __name__ == "__main__":
 	schedulability = []
 	total_jobs = []
 	failed_jobs = []
+	ratio = []
 	#initialize counters
 	for i in range(len(policies)):
 		schedulability.append(0)
 		total_jobs.append(0)
 		failed_jobs.append(0)
-
+		ratio.append(0)
 	for i in range(repeat_times):
 		for j in range(len(policies)):
 			temp_fail, temp_total = run_test(sum_af, load_ratio, pcpu_num, simulation_time, policies[j])
 			while temp_fail is None or temp_total is None:
 				print("not schedulable")
-				j -= 1
 				temp_fail, temp_total = run_test(sum_af, load_ratio, pcpu_num, simulation_time, policies[j])
-			if temp_fail == temp_total:
+			if temp_fail == 0:
 				schedulability[j] += 1
 			total_jobs[j] += temp_total
 			failed_jobs[j] += temp_fail
-
+			ratio[j] += (temp_total - temp_fail)/temp_total
+			print("This round: "+str(temp_total)+","+str(temp_fail))
+			print(str(i)+", "+str(j)+": "+str(schedulability[j])+", "+str(ratio[j]))
 	#change the file name here
 	file_name = "result/result_"+str(load_ratio)+".txt"
 	result_file = open(file_name, "a")
@@ -147,7 +152,8 @@ if __name__ == "__main__":
 			+str(load_ratio)+","+str(completion_ratio)+")\n")
 	result_file.flush()
 	result_file.close()
-
+	sys.stdout = old
+	f.close()
 
 
 
