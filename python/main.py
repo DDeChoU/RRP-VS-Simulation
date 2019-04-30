@@ -131,7 +131,7 @@ if __name__ == "__main__":
 		ratio.append(0)
 	for i in range(repeat_times):
 		partition_list = g.generate_partitions(sum_af)
-		largest_aaf = max(partition_list, key = lambda x:x.af)
+		largest_aaf = max(partition_list, key = lambda x:x.af).af
 		task_list = g.generate_tasks(load_ratio*sum_af, False, 0.5, 0, largest_aaf)
 		for j in range(len(policies)):
 			temp_partition_list = copy.deepcopy(partition_list)

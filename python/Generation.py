@@ -1,5 +1,8 @@
 import random
-
+from Partition import Partition
+from Task import Task, Job
+from OS_Simulator import OS_Simulator
+import math
 class Generation:
 	def generate_partitions(self, target_af):
 		'''

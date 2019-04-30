@@ -77,15 +77,17 @@ class Scheduler:
 		for x in range(len(partition_list)):
 			f = self.mulZ_FFD_Alloc(partition_list[x])
 			if f is None:
+				print(str(partition_list[x].af)+", "+str(partition_list[x].reg))
 				raise Exception("Error! Partitions not schedulable!!! Aborting!")
 				return
 			pcpus_partitions[f].append(partition_list[x])
 			self.partition_pcpu_mapping[partition_list[x].partition_id] = f
 
 		for (pcpu_id, pcpu_now) in self.pcpus.items():
-			temp_samll = pcpu_now.set_partitions(pcpus_partitions[pcpu_id])
-			if temp_samll<self.largest_aaf:
-				self.largest_aaf = temp_samll
+			success= pcpu_now.set_partitions(pcpus_partitions[pcpu_id])
+			if not success:
+				print("Partition on PCPU not schedulable")
+				raise Exception("Error! Partitions not schedulable!!! Aborting!")
 		return True
 
 	def mulZ_FFD_Alloc(self, par):
