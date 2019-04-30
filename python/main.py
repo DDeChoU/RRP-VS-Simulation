@@ -8,6 +8,7 @@ import sys
 import os
 from Generation import Generation
 import copy
+import logging
 
 def analyze_command(a):
 	targets = []
@@ -70,14 +71,17 @@ def run_test(partition_list, task_list, pcpu_num, simulation_time, policy_name):
 
 
 		#retrieve the cpu_affinity_list
-		r = os.popen("taskset -c -p "+str(os.getpid()))
-		cpu_affinity_list = analyze_command(r.read())
+		#r = os.popen("taskset -c -p "+str(os.getpid()))
+		#cpu_affinity_list = analyze_command(r.read())
+		# for running locally
+		cpu_affinity_list = [1,2]
 		#print(cpu_affinity_list)
 
 	except Exception as err:
 		#print(err)
 		#sys.stdout = old
 		#f.close()
+		#logging.exception("Error here:")
 		return None, None
 
 
@@ -139,6 +143,9 @@ if __name__ == "__main__":
 			temp_fail, temp_total = run_test(temp_partition_list, temp_task_list, pcpu_num, simulation_time, policies[j])
 			while temp_fail is None or temp_total is None:
 				print("not schedulable")
+				partition_list = g.generate_partitions(sum_af)
+				largest_aaf = max(partition_list, key = lambda x:x.af).af
+				task_list = g.generate_tasks(load_ratio*sum_af, False, 0.5, 0, largest_aaf)
 				temp_partition_list = copy.deepcopy(partition_list)
 				temp_task_list = copy.deepcopy(task_list)
 				temp_fail, temp_total = run_test(temp_partition_list, temp_task_list, pcpu_num, simulation_time, policies[j])

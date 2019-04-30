@@ -1,4 +1,0 @@
-  File "main.py", line 142
-    print(str(i)+", "+str(j)+": "+str(schedulability[j])+", "+str(ratio[j]/))
-                                                                           ^
-SyntaxError: invalid syntax

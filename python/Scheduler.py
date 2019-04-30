@@ -29,8 +29,6 @@ class Scheduler:
 
 			failed_jobs:				type: int; total number of failed jobs
 
-			largest_aaf:				type: double; the smallest aaf
-
 			densities:					type: dictionary of dictionary; key: partition_id, value: a dictionary, 
 											  the key is the job_id, value is its denstiy
 
@@ -52,7 +50,6 @@ class Scheduler:
 		self.total_jobs = 0
 		self.failed_jobs = 0
 
-		self.largest_aaf = 1
 		self.densities = {}
 		self.periods = {}
 		#invoke generate partitions here, no needed. Now takes in the partition list directly.

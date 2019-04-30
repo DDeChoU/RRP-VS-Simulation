@@ -15,7 +15,6 @@ class OS_Simulator:
 		'''
 
 		Args:
-			load:			type: double; The sum of densities of all tasks
 			task_list:		type: Task[]; The array of tasks running
 			#start_time: 	type: datetime; The booting time of the OS_simulator
 
@@ -23,7 +22,6 @@ class OS_Simulator:
 		'''
 
 		#generate the task set here based on the load
-		self.load = load
 
 		self.task_list = task_list
 		self.total_tasks = len(self.task_list)
@@ -53,7 +51,7 @@ class OS_Simulator:
 		self.job_pipe_send = job_send
 		#print(self.job_pipe_send)
 		r = os.popen("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
-		print(r.read())
+		#print(r.read())
 		arrived_task_list = []
 		phases = []#use the phases array to record which job of the task is to come next
 		counter = 0
