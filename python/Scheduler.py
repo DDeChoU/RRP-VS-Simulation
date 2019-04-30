@@ -7,11 +7,12 @@ import sys
 
 class Scheduler:
 
-	def __init__(self, sum_af, pcpus):
+	def __init__(self, partition_list, pcpus):
 		'''
 		Args:
 
-			sum_af: 					type: float; The total availability factor of partitions.
+			# sum_af: 					type: float; The total availability factor of partitions.
+			
 			pcpus:						type: PCPU dictionary; each item is a PCPU instance, 
 											  while the key is the pcpu_id
 			partitions:					type: dictionary; each item is a partition instance, 
@@ -36,7 +37,7 @@ class Scheduler:
 			periods:					type: dictionary of dictionary; key: partition id, value: a dictionary, 
 											  the key is the job_id, value is its density
 		'''
-		self.sum_af = sum_af
+		#self.sum_af = sum_af
 		self.pcpus = {}
 		self.partitions = {}
 		self.partition_pcpu_mapping = {}
@@ -54,8 +55,8 @@ class Scheduler:
 		self.largest_aaf = 1
 		self.densities = {}
 		self.periods = {}
-		#invoke generate partitions here
-		partition_list = self.generate_partitions(sum_af)
+		#invoke generate partitions here, no needed. Now takes in the partition list directly.
+		#partition_list = self.generate_partitions(sum_af)
 		for i in range(len(partition_list)):
 			self.partitions[partition_list[i].partition_id] = partition_list[i]
 			self.partition_task[partition_list[i].partition_id] = set()

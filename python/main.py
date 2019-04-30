@@ -6,8 +6,8 @@ import time
 import signal
 import sys
 import os
-
-
+from Generation import Generation
+import copy
 
 def analyze_command(a):
 	targets = []
@@ -41,7 +41,7 @@ def analyze_command(a):
 
 
 
-def run_test(sum_af, load_ratio, pcpu_num, simulation_time, policy_name):
+def run_test(partition_list, task_list, pcpu_num, simulation_time, policy_name):
 	#set up parameters
 	pcpu_num = 8 #homogeneous pcpu for now
 	load_ratio =0.5
@@ -60,12 +60,13 @@ def run_test(sum_af, load_ratio, pcpu_num, simulation_time, policy_name):
 			pcpus.append(pcpu_now)
 
 		#initialize Scheduler
-		scheduler = Scheduler(sum_af, pcpus)
+		scheduler = Scheduler(partition_list, pcpus)
 
-		largest_aaf = scheduler.largest_aaf
+
+		#largest_aaf = scheduler.largest_aaf
 		#initialize OS_Simulator
 		load = sum_af*load_ratio
-		simulator = OS_Simulator(load, largest_aaf)
+		simulator = OS_Simulator(task_list)
 
 
 		#retrieve the cpu_affinity_list
@@ -121,6 +122,7 @@ if __name__ == "__main__":
 	total_jobs = []
 	failed_jobs = []
 	ratio = []
+	g = Generation()
 	#initialize counters
 	for i in range(len(policies)):
 		schedulability.append(0)
@@ -128,11 +130,18 @@ if __name__ == "__main__":
 		failed_jobs.append(0)
 		ratio.append(0)
 	for i in range(repeat_times):
+		partition_list = g.generate_partitions(sum_af)
+		largest_aaf = max(partition_list, key = lambda x:x.af)
+		task_list = g.generate_tasks(load_ratio*sum_af, False, 0.5, 0, largest_aaf)
 		for j in range(len(policies)):
-			temp_fail, temp_total = run_test(sum_af, load_ratio, pcpu_num, simulation_time, policies[j])
+			temp_partition_list = copy.deepcopy(partition_list)
+			temp_task_list = copy.deepcopy(task_list)
+			temp_fail, temp_total = run_test(temp_partition_list, temp_task_list, pcpu_num, simulation_time, policies[j])
 			while temp_fail is None or temp_total is None:
 				print("not schedulable")
-				temp_fail, temp_total = run_test(sum_af, load_ratio, pcpu_num, simulation_time, policies[j])
+				temp_partition_list = copy.deepcopy(partition_list)
+				temp_task_list = copy.deepcopy(task_list)
+				temp_fail, temp_total = run_test(temp_partition_list, temp_task_list, pcpu_num, simulation_time, policies[j])
 			if temp_fail == 0:
 				schedulability[j] += 1
 			total_jobs[j] += temp_total
@@ -144,10 +153,9 @@ if __name__ == "__main__":
 	file_name = "result/result_"+str(load_ratio)+".txt"
 	result_file = open(file_name, "a")
 	for j in range(len(policies)):
-		if total_jobs[j]==0:
-			completion_ratio = 0
-		else:
-			completion_ratio = (total_jobs[j]-failed_jobs[j])/float(total_jobs[j])
+
+		ratio[j]/= repeat_times
+		schedulability[j]/=repeat_times
 		result_file.write(policies[j]+": "+"("+str(load_ratio)+", "+str(schedulability[j])+");("\
 			+str(load_ratio)+","+str(completion_ratio)+")\n")
 	result_file.flush()
