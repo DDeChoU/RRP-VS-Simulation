@@ -275,7 +275,7 @@ class Scheduler:
 		#print("In the best fit")		
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
-		density_now = (job_now.WCET+0.1)/float(real_period)
+		density_now = (job_now.WCET)/float(real_period)
 		closest_gap = 1000
 		smallest_id = None
 		#print("Number of partitions: "+str(len(self.partitions)))
@@ -319,7 +319,7 @@ class Scheduler:
 		#print("In the best fit")		
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
-		density_now = (job_now.WCET+0.1)/float(real_period)
+		density_now = (job_now.WCET)/float(real_period)
 
 		#print("Number of partitions: "+str(len(self.partitions)))
 		for (par_id, partition_now) in self.partitions.items():
@@ -353,7 +353,7 @@ class Scheduler:
 
 		time_now = datetime.datetime.now()
 		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
-		density_now = (job_now.WCET+0.1)/float(real_period)
+		density_now = (job_now.WCET)/float(real_period)
 		largest_cap = 0
 		largest_id = None
 		#print("Number of partitions: "+str(len(self.partitions)))

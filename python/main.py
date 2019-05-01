@@ -71,10 +71,10 @@ def run_test(partition_list, task_list, pcpu_num, simulation_time, policy_name):
 
 
 		#retrieve the cpu_affinity_list
-		#r = os.popen("taskset -c -p "+str(os.getpid()))
-		#cpu_affinity_list = analyze_command(r.read())
+		r = os.popen("taskset -c -p "+str(os.getpid()))
+		cpu_affinity_list = analyze_command(r.read())
 		# for running locally
-		cpu_affinity_list = [1,2]
+		#cpu_affinity_list = [1,2]
 		#print(cpu_affinity_list)
 
 	except Exception as err:
