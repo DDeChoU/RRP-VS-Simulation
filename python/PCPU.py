@@ -42,7 +42,7 @@ class PCPU:
 			#print(aaf_now)
 			total_aaf += aaf_now
 		if total_aaf>1:
-			print("Partitions on PCPU #"+str(self.pcpu_id)+" is not schedulable")
+			#print("Partitions on PCPU #"+str(self.pcpu_id)+" is not schedulable")
 			return False
 		#use partition single to set up partitions.
 		self.partition_single()

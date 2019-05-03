@@ -74,7 +74,7 @@ class Scheduler:
 		for x in range(len(partition_list)):
 			f = self.mulZ_FFD_Alloc(partition_list[x])
 			if f is None:
-				print(str(partition_list[x].af)+", "+str(partition_list[x].reg))
+				#print(str(partition_list[x].af)+", "+str(partition_list[x].reg))
 				raise Exception("Error! Partitions not schedulable!!! Aborting!")
 				return
 			pcpus_partitions[f].append(partition_list[x])
@@ -83,7 +83,7 @@ class Scheduler:
 		for (pcpu_id, pcpu_now) in self.pcpus.items():
 			success= pcpu_now.set_partitions(pcpus_partitions[pcpu_id])
 			if not success:
-				print("Partition on PCPU not schedulable")
+				#print("Partition on PCPU not schedulable")
 				raise Exception("Error! Partitions not schedulable!!! Aborting!")
 		return True
 
@@ -169,12 +169,12 @@ class Scheduler:
 
 		#setup pipes: job receiver (from OS_Simulator), job sender(To pcpus), info receiver (from PCPUs), maintain a form for each pcpu
 
-		f = open("log/scheduler.log","a")
-		old = sys.stdout
-		sys.stdout = f
+		#f = open("log/scheduler.log","a")
+		#old = sys.stdout
+		#sys.stdout = f
 		if not callable(getattr(self, policy_name)):
 			print("Invalid policy name given!")
-		print("Initialization in Scheduler starts.")
+		#print("Initialization in Scheduler starts.")
 		job_send_pipes = {}
 		job_receive_pipe = Queue()
 		info_pipes = {}
@@ -206,7 +206,7 @@ class Scheduler:
 		tempP.start()
 		self.process_list.append(tempP)
 
-		print("Initialization in Scheduler is done.")
+		#print("Initialization in Scheduler is done.")
 
 
 		while True:
@@ -220,7 +220,7 @@ class Scheduler:
 				if par_id is None:
 					#not schedulable job!
 					self.failed_jobs += 1
-					print("Failed job: "+job_now.job_info())
+					#print("Failed job: "+job_now.job_info())
 					continue
 				job_now.par_id = par_id
 				pcpu_id = self.partition_pcpu_mapping[par_id]
@@ -235,12 +235,12 @@ class Scheduler:
 					if job_id in self. densities[par_id]:
 						density_now = self.densities[par_id].pop(job_id)
 						self.partition_task_density[par_id] -= density_now
-					else:
-						print(job_id+" is not recorded! ")
+					#else:
+						#print(job_id+" is not recorded! ")
 					if job_id in self.periods[par_id]:
 						self.periods[par_id].pop(job_id)
-					else:
-						print(job_id+" is not recorded! ")
+					#else:
+						#print(job_id+" is not recorded! ")
 
 					period_set = self.periods[par_id]
 					if len(period_set)==0:
@@ -251,20 +251,20 @@ class Scheduler:
 
 					if not jr.on_time:
 						self.failed_jobs += 1
-						print(jr.report())
+						#print(jr.report())
 						#print("Failed jobs: "+str(self.failed_jobs))
 					#can report to the user here by logging
 			if terminate_pipe.poll():
 				msg = terminate_pipe.recv()
-				print(msg)
+				#print(msg)
 				for tempP in self.process_list:
 					tempP.terminate()
 					tempP.join()
-				print(str(self.failed_jobs)+', '+str(self.total_jobs))
+				#print(str(self.failed_jobs)+', '+str(self.total_jobs))
 				terminate_pipe.send([self.failed_jobs, self.total_jobs])
-				sys.out = old
-				f.flush()
-				f.close()
+				#sys.out = old
+				#f.flush()
+				#f.close()
 				break
 			#print("One loop ends")
 
@@ -388,4 +388,52 @@ class Scheduler:
 			self.densities[largest_id][job_now.job_id] = density_now
 			#print("Updating")
 		return largest_id
+	def almost_worst_fit(self, job_now):
+		time_now = datetime.datetime.now()
+		real_period = (job_now.arb_ddl - time_now).total_seconds()*1000
+		density_now = (job_now.WCET)/float(real_period)
+		largest_cap = 0
+		largest_id = None
+		second_largest_cap = 0
+		second_largest_id = None
+		#print("Number of partitions: "+str(len(self.partitions)))
+		for (par_id, partition_now) in self.partitions.items():
+			#print("testing: "+str(job_now.job_id in self.partition_task[par_id]))
+			#for mode 1(partitioned scheduling), first judge whether the job has been allocated (check task id)
+			#if so, directly, return the partition id
+			if job_now.task_id in self.partition_task[par_id]:
+				self.partition_task_density[par_id] += density_now
+				self.partition_task_period[par_id] = min(self.partition_task_period[par_id], real_period)
+				self.periods[par_id][job_now.job_id] = real_period
+				self.densities[par_id][job_now.job_id] = density_now
+				return par_id
+			#or else, find the Best Fit based on the capacity left of each partition
+			temp_density = self.partition_task_density[par_id] + density_now
+			task_period = min(real_period, self.partition_task_period[par_id])
+			capacity = partition_now.af - (partition_now.reg - 1)/task_period
+			#print("Density and capcity: "+str(temp_density)+", "+str(capacity))
+			if temp_density > capacity:
+				continue
+			else:
+				#print("Find one fit")
+				if capacity>largest_cap:
+					second_largest_cap = largest_cap
+					second_largest_id = largest_id
+					largest_cap = capacity
+					largest_id = par_id
+				elif capacity>second_largest_cap:
+					second_largest_cap = capacity
+					second_largest_id = par_id
 
+		if second_largest_id is None:
+			second_largest_id = largest_id
+			second_largest_cap = largest_cap
+		if second_largest_id is not None:
+			#update parameters
+			self.partition_task_density[second_largest_id] += density_now
+			self.partition_task_period[second_largest_id] = min(self.partition_task_period[second_largest_id], real_period)
+			self.partition_task[second_largest_id].add(job_now.task_id)
+			self.periods[second_largest_id][job_now.job_id] = real_period
+			self.densities[second_largest_id][job_now.job_id] = density_now
+			#print("Updating")
+		return second_largest_id		

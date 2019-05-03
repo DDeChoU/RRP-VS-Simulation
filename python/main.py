@@ -111,16 +111,19 @@ if __name__ == "__main__":
 	if(len(sys.argv)<5):
 		exit(0)
 	repeat_times = 200#fixed
-	f = open("log/main.log", "w")
-	old = sys.stdout
-	sys.stdout = f
+
 	
 	sum_af = int(sys.argv[1])
 	pcpu_num = int(sys.argv[2])
 	simulation_time = int(sys.argv[3])
 	load_ratio = float(sys.argv[4])
+	file_name = "log/main_"+str(sum_af)+"_"+str(pcpu_num)+"_"+str(simulation_time)+"_"+str(load_ratio)+".log"
 
-	policies = ["best_fit", "first_fit", "worst_fit"]
+	f = open(file_name, "w")
+	old = sys.stdout
+	#sys.stdout = f
+
+	policies = ["best_fit", "first_fit", "worst_fit","almost_worst_fit"]# ,
 	#policies = ["worst_fit"]
 	schedulability = []
 	total_jobs = []
@@ -142,7 +145,7 @@ if __name__ == "__main__":
 			temp_task_list = copy.deepcopy(task_list)
 			temp_fail, temp_total = run_test(temp_partition_list, temp_task_list, pcpu_num, simulation_time, policies[j])
 			while temp_fail is None or temp_total is None:
-				print("not schedulable")
+				#print("not schedulable")
 				partition_list = g.generate_partitions(sum_af)
 				largest_aaf = max(partition_list, key = lambda x:x.af).af
 				task_list = g.generate_tasks(load_ratio*sum_af, False, 0.5, 0, largest_aaf)
@@ -157,8 +160,8 @@ if __name__ == "__main__":
 			print("This round: "+str(temp_total)+","+str(temp_fail))
 			print(str(i)+", "+str(j)+": "+str(schedulability[j])+", "+str(ratio[j]))
 	#change the file name here
-	file_name = "result/result_"+str(load_ratio)+".txt"
-	result_file = open(file_name, "a")
+	file_name = "result"+str(sum_af)+"_"+str(pcpu_num)+"_"+str(simulation_time)+"_"+str(load_ratio)+".txt"
+	result_file = open(file_name, "w")
 	for j in range(len(policies)):
 
 		ratio[j]/= repeat_times

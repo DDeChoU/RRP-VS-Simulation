@@ -45,9 +45,9 @@ class OS_Simulator:
 	
 
 	def generate_jobs(self, start_time, job_send, core_rank):
-		f = open("log/job_generation.log", "a")
-		old = sys.stdout
-		sys.stdout = f
+		#f = open("log/job_generation.log", "a")
+		#old = sys.stdout
+		#sys.stdout = f
 		self.job_pipe_send = job_send
 		#print(self.job_pipe_send)
 		r = os.popen("taskset -p -c " +str(core_rank)+" "+str(os.getpid()))
@@ -67,16 +67,16 @@ class OS_Simulator:
 				#print(arr_time_now)
 				#print(self.start_time)
 				while arr_time_now<=time_now:#(time_now - self.task_list[counter].arr_time).total_second()>=0
-					print("A task has arrived")
+					#print("A task has arrived")
 					#print(counter)
 					arrived_task_list.append(self.task_list[counter])
 					counter += 1
 					phases.append(0)
 					if counter>= len(self.task_list):
 						all_arrived = True
-						print("All tasks' first instances have arrived.")
+						#print("All tasks' first instances have arrived.")
 						break
-					f.flush()
+					#f.flush()
 					arr_time_now = start_time+datetime.timedelta(self.task_list[counter].arr_time)
 
 
@@ -91,7 +91,7 @@ class OS_Simulator:
 					phases[i]+= 1
 					j = Job(arrived_task_list[i].WCET, arb_ddl, arrived_task_list[i].task_id)
 					#send it through the pipe
-					print("Trying to send through pipes")
+					#print("Trying to send through pipes")
 					self.job_pipe_send.put(j)#change the pipe sender to queue
 					#os.system("ps -o pid,psr,comm -p "+str(os.getpid()))
 
