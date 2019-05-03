@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
 	f = open(file_name, "w")
 	old = sys.stdout
-	#sys.stdout = f
+	sys.stdout = f
 
 	policies = ["best_fit", "first_fit", "worst_fit","almost_worst_fit"]# ,
 	#policies = ["worst_fit"]
