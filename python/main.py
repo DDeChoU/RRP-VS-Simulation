@@ -139,7 +139,10 @@ if __name__ == "__main__":
 	for i in range(repeat_times):
 		partition_list = g.generate_partitions(sum_af)
 		largest_aaf = max(partition_list, key = lambda x:x.af).af
-		task_list = g.generate_tasks(load_ratio*sum_af, False, 0.5, 0, largest_aaf)
+		sum_aaf = 0
+		for p in partition_list:
+			sum_aaf += p.aaf
+		task_list = g.generate_tasks(load_ratio*sum_aaf, False, 0.5, 0, largest_aaf)
 		for j in range(len(policies)):
 			temp_partition_list = copy.deepcopy(partition_list)
 			temp_task_list = copy.deepcopy(task_list)
@@ -148,7 +151,10 @@ if __name__ == "__main__":
 				#print("not schedulable")
 				partition_list = g.generate_partitions(sum_af)
 				largest_aaf = max(partition_list, key = lambda x:x.af).af
-				task_list = g.generate_tasks(load_ratio*sum_af, False, 0.5, 0, largest_aaf)
+				sum_aaf = 0
+				for p in partition_list:
+					sum_aaf += p.aaf
+				task_list = g.generate_tasks(load_ratio*sum_aaf, False, 0.5, 0, largest_aaf)
 				temp_partition_list = copy.deepcopy(partition_list)
 				temp_task_list = copy.deepcopy(task_list)
 				temp_fail, temp_total = run_test(temp_partition_list, temp_task_list, pcpu_num, simulation_time, policies[j])

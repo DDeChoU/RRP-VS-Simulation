@@ -21,7 +21,7 @@ class Partition:
 		self.job_queue = []
 		heapq.heapify(self.job_queue)
 		self.capacity = -1
-		self.aaf = self.af
+		self.aaf = self.set_aaf(self.magic7(self.af, self.reg))
 	def set_aaf(self, aaf):
 		self.aaf = math.ceil(aaf*10000)/10000 #ceil it to the third decimal digit so that hyper-period can be 1000 all the time
 
@@ -36,6 +36,31 @@ class Partition:
 			return job_now
 		except IndexError:
 			return None 
+	def magic7(self, af, reg):
+		if af==0:
+			return 0
+		if reg==1:
+			if af>0 and af<1.0/7:
+				n = math.floor(self.approximateValue(math.log(7*af)/math.log(0.5)))
+
+				result = 1/(7*(2**n))
+				#print("First n"+str(n)+" and result is: "+str(result))				
+				return result
+			if af>=1.0/7 and af<=6.0/7:
+				#print((math.ceil(self.approximateValue(7*af)))/7)
+				result = (math.ceil(self.approximateValue(7*af)))/7
+				#print("Middle result: "+str(result))
+				return result
+			if af>6.0/7 and af<1:
+				n = math.ceil(self.approximateValue(math.log(7*(1-af))/math.log(0.5)))
+				result = 1-(1/(7*(2**n)))
+				#print("Last n: "+str(n)+" and result is: "+str(result))
+				return result
+		else:
+			#print(af)
+			#print("recursion needed L: "+str(self.L(af)))
+			return (self.L(af)+self.magic7(af-self.L(af), reg - 1))
+		return 0
 
 
 #test 

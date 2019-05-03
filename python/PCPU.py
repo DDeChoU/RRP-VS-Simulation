@@ -36,7 +36,7 @@ class PCPU:
 		#first use magic7 to calculate the approximate availability factor
 		for i in range(len(par_list)):
 			self.par_dict[par_list[i].partition_id] = par_list[i]
-			aaf_now = self.magic7(par_list[i].af, par_list[i].reg) #using magic7 now
+			aaf_now = par_list[i].aaf #using magic7 now
 			#aaf_now = self.AAF(par_list[i].af, par_list[i].reg)
 			self.par_dict[par_list[i].partition_id].set_aaf(aaf_now)
 			#print(aaf_now)
