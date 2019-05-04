@@ -142,6 +142,7 @@ if __name__ == "__main__":
 		sum_aaf = 0
 		for p in partition_list:
 			sum_aaf += p.aaf
+		print(sum_aaf)
 		task_list = g.generate_tasks(load_ratio*sum_aaf, False, 0.5, 0, largest_aaf)
 		for j in range(len(policies)):
 			temp_partition_list = copy.deepcopy(partition_list)
@@ -154,6 +155,7 @@ if __name__ == "__main__":
 				sum_aaf = 0
 				for p in partition_list:
 					sum_aaf += p.aaf
+				print(sum_aaf)
 				task_list = g.generate_tasks(load_ratio*sum_aaf, False, 0.5, 0, largest_aaf)
 				temp_partition_list = copy.deepcopy(partition_list)
 				temp_task_list = copy.deepcopy(task_list)
