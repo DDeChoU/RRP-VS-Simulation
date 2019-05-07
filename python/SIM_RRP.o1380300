@@ -1,0 +1,5 @@
+0.1
+Traceback (most recent call last):
+  File "main.py", line 178, in <module>
+    +str(load_ratio)+","+str(completion_ratio)+")\n")
+NameError: name 'completion_ratio' is not defined
