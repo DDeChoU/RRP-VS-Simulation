@@ -51,13 +51,16 @@ vector<Partition> Generation::generate_partitions(double target_af)
 	*	a randomly generated partition set.
 	*/
 	vector<Partition> result;
+	int counter = 0;
 	vector<double> afs = gen_kato_utilizations(target_af, 0.1, 1);
 	srand(time(NULL));
+	string prefix = "Par#";
 	for(int i=0;i<afs.size();i++)
 	{
+		counter ++;
 		int reg = rand()%2+1;
 		//std::cout<<reg<<std::endl;
-		Partition p_now = Partition(afs.at(i), reg);
+		Partition p_now = Partition(afs.at(i), reg,  prefix+std::to_string(counter));
 		result.push_back(p_now);
 	}
 	return result;
@@ -77,6 +80,7 @@ vector<Task> Generation:: generate_tasks(double target_load, bool has_sporadic,
 	vector<double> densities = gen_kato_utilizations(target_load, 0.00001, highest_density);
 	srand(time(NULL));
 	int counter = 0;
+	string prefix = "Task#";
 	for(int i=0;i<densities.size();i++)
 	{
 		counter ++;
@@ -99,7 +103,7 @@ vector<Task> Generation:: generate_tasks(double target_load, bool has_sporadic,
 			if(dice<=hard_rt_ratio*10)
 				is_hard_rt = true;
 		}
-		Task task_now = Task(wcet, period, deadline, arrival, std::to_string(counter), is_p, is_hard_rt);
+		Task task_now = Task(wcet, period, deadline, arrival, prefix+std::to_string(counter), is_p, is_hard_rt);
 		tasks.push_back(task_now);
 	}
 	return tasks;

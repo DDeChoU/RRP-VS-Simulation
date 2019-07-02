@@ -11,21 +11,23 @@ class Partition
 private:
 	double availability_factor;
 	int regularity;
-	
+	string partition_id;
+
 	vector<Job> job_queue;
 
 public:
 	//constructor takes in the availability factor and regularity. There is no way to change once it is set.
-	Partition(double af, int reg)
+	Partition(double af, int reg, string id)
 	{
 		availability_factor = af;
 		regularity = reg;
+		partition_id = id;
 	}
 	double getAF(){return availability_factor;}
 	double getReg(){return regularity;}
 	string printInfo()
 	{
-		string result;
+		string result = partition_id+":";
 		result+= std::to_string(availability_factor)+","+std::to_string(regularity);
 		return result;
 
