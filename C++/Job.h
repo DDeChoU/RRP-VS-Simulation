@@ -27,6 +27,7 @@ private:
 	bool is_hard_rt;
 	string task_id;
 	string job_id;
+	string partition_id;
 public:
 	//constructor
 	Job(double c, system_clock::time_point D, string t_id, int phase, bool hard_rt = false)

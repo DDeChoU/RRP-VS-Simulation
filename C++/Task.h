@@ -20,7 +20,7 @@ private:
 	string task_id;
 	bool is_hard_rt;
 	string partition_id;
-
+	string domain_id;
 public:
 	//arguments:
 	//w: Worst Case Execution Time
@@ -28,7 +28,7 @@ public:
 	//r_ddl: relative deadline
 	//periodic: whether the task is a periodic task, true by default
 	//hard_rt: whether the task is hard real time, false by default
-	Task(double w, int p, int r_ddl, double arr_time, string t_id, bool periodic=true, bool hard_rt=false)
+	Task(double w, int p, int r_ddl, double arr_time, string t_id, bool periodic=true, bool hard_rt=false, string dom_id = "DOM#1")
 	{
 		WCET = w;
 		period = p;
@@ -37,24 +37,23 @@ public:
 		is_hard_rt = hard_rt;
 		arrival_time = arr_time;
 		task_id = t_id;
-
+		domain_id = dom_id;// domain id is set to "DOM#1" by default 
 	}
 
-	double getWCET(){return WCET;}
-	int getPeriod(){return period;}
-	int getRelativeDdl(){return relative_ddl;}
-	double getArrTime(){return arrival_time;}
-	bool isPeriodic(){return is_periodic;}
-	string getID(){return task_id;}
-	bool isHardRT(){return is_hard_rt;}
-	string getPartitionId(){return partition_id;}
+	double getWCET() const {return WCET;} 
+	int getPeriod() const {return period;}
+	int getRelativeDdl() const{return relative_ddl;}
+	double getArrTime() const{return arrival_time;}
+	bool isPeriodic() const{return is_periodic;}
+	string getID() const{return task_id;}
+	bool isHardRT() const{return is_hard_rt;}
+	string getPartitionId() const{return partition_id;}
 	void setPartitionId(string pid){partition_id = pid;}
 
 	bool operator<(const Task &b) const
 	{
 		return arrival_time<b.arrival_time;
 	}
-
 	//for testing
 	string printInfo()
 	{
