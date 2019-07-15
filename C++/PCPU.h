@@ -2,13 +2,27 @@
 #define PCPU_H
 #include <chrono>
 #include <math.h>
+#include <iostream>
+#include <list>
+#include <set>
+#include <algorithm>
+#include <vector>
+#include <unordered_map>
+#include <string>
+#include <stdlib.h>
+
 #include "Socket_Conn.h"
 #include "TaskSlice.h"
-#include <iostream>
+#include "Partition.h"
 
 using namespace std::chrono;
 using std::cout;
 using std::endl;
+using std::list;
+using std::set;
+using std::vector;
+using std::unordered_map;
+using std::string;
 
 //circular linked list node 
 struct job_node
@@ -22,12 +36,31 @@ struct job_node
 	}
 };
 
+struct task_slice
+{
+	Partition *p;
+	task_slice *next;
+	task_slice *prev;
+	task_slice(Partition *p_now):p(p_now)
+	{
+		next = prev = nullptr;
+	}
+};
+
+bool compare_partitions(const Partition *a, const Partition *b)
+{
+	return a->getAAF()>b->getAAF();
+}
+
 class PCPU
 {
 private:
 	string pcpu_id;
-	job_node *root;
-	job_node *node_now;
+	task_slice *t_table_root;
+	task_slice *t_now;
+	int hyper_period;
+	//job_node *root;
+	//job_node *node_now;
 	//vector<string> time_par_table;
 
 public:
@@ -35,24 +68,44 @@ public:
 
 	void run_pcpu(int port);
 	
+	//schedule partitions based on the factor
+	void partition_single(list<Partition *> partition_set);
+
+	//calculate the hyper_period of this pcpu
+	void calculate_hp(const list<Partition *> &partition_set);
+
+	string showTTable();
+
+	string getID() const{return pcpu_id;}
+	~PCPU();
+
 private:
 
 	//can modify that into LLF or EDF, now is FIFO, can be optimized by directly taking string in
+	/*
 	void insert_job(Job &a);
 	//remove node_now
-	void remove_job(job_node *this_node);
+	void remove_job(job_node *this_node);*/
 
 		//execute execution_time milliseconds.
 	void execute(int execution_time);
 
+	//handles the precision
 	double approximateValue(double value);
+
+	//calculate the least common multiple of two integers
+	int lcm(int t1, int t2);
+
+
+	void insert_task_slice(Partition *p);
 
 };
 PCPU::PCPU(string id)
 {
 	pcpu_id = id;
-	root = nullptr;
-	node_now = nullptr;
+	t_table_root = nullptr;
+	t_now = nullptr;
+	hyper_period = 1;
 	//cout<<"Successfully constructed."<<endl;
 }
 
@@ -72,6 +125,7 @@ void PCPU::execute(int execution_time)
 
 void PCPU::run_pcpu(int port)
 {
+	/*
 	//build up com_pipeections with the scheduler first
 	Socket_Conn com_pipe(port, false);
 	//cout<<"RUN_PCPU connected!"<<endl;
@@ -141,12 +195,14 @@ void PCPU::run_pcpu(int port)
 
 	}
 	cout<<"PCPU #"<<pcpu_id<<" shutting down"<<endl;
-
+	*/
 }
 
-void PCPU::insert_job(Job &a)
+
+
+void PCPU::insert_task_slice(Partition *p)
 {
-	job_node *temp = new job_node(a);
+	task_slice *temp = new task_slice(p);
 	/* outputs used for debugging.
 	cout<<a.getJobId()<<": ";
 	system_clock::time_point t_now = system_clock::now();
@@ -156,42 +212,198 @@ void PCPU::insert_job(Job &a)
 	ss<<std::put_time(localtime(&et), "%F %T")<<"."<<std::setfill('0')<<std::setw(3)<<nowMS.count();
 	cout<<ss.str()<<endl;
 	*/
-	if(root==nullptr)
+
+	if(t_table_root==nullptr)
 	{
-		root = temp;
-		temp->next = root;
-		temp->prev = root;
-		node_now = root;
+		t_table_root = temp;
+		temp->next = t_table_root;
+		temp->prev = t_table_root;
+		t_now = t_table_root;
 
 	}
 	else
 	{
-		job_node *iter = root;
-		while(iter->next!=root)
+		task_slice *iter = t_table_root;
+		while(iter->next!=t_table_root)
 		{
 			iter = iter->next;
 		}
 		iter->next = temp;
 		temp->prev = iter;
-		temp->next = root;
-	}
-}
-//remove node_now
-void PCPU::remove_job(job_node *this_node)
-{
-	if(this_node==root)
-	{
-		root = nullptr;
-		node_now = root;
-		delete this_node;
-	}
-	else
-	{
-		this_node->prev->next = this_node->next;
-		this_node->next->prev = this_node->prev;
-		node_now = this_node->prev;
-		delete this_node;
+		temp->next = t_table_root;
+		t_table_root->prev = temp;
 	}
 }
 
+//remove all task_slice
+PCPU::~PCPU()
+{
+	task_slice *now = t_table_root;
+	if(now==nullptr)
+		return;
+	while(now->next!=now)
+	{
+		//delete node now
+		now->prev->next = now->next;
+		now->next->prev = now->prev;
+		task_slice *temp = now->next;
+		delete now;
+		now = temp;
+	}
+	delete now;
+	t_table_root = nullptr;
+	t_now = nullptr;
+}
+
+
+double PCPU::approximateValue(double value)
+{
+	double result = floor(value);
+	if(value-result>0.99999)
+		return result+1;
+	if(value-result>0.49999 && value-result<0.5)
+		return result+0.5;
+	if(value-result>0 && value-result<0.00001)
+		return result;
+	return value;
+}
+
+//needs to be modified!!!
+void PCPU::calculate_hp(const list<Partition *> &partition_set)
+{
+	int hp = 1;
+	//hyper period cannot be done well.
+	for(auto it = partition_set.begin();it!=partition_set.end(); it++)
+	{
+		int period_now = (*it)->getAAFDown();
+		hp = lcm(hp, period_now);
+	}
+
+	hyper_period = hp;
+}
+
+
+int PCPU::lcm(int temp1, int temp2)
+{
+	int a = std::max(temp1, temp2);
+	int b = std::min(temp1, temp2);
+	while(b!=0)
+	{
+		int t = b;
+		b = a%b;
+		a = t;
+	}
+	return temp1*temp2/a;
+}
+
+void PCPU::partition_single(list<Partition *> partition_set)
+{
+	calculate_hp(partition_set);
+	vector<int> avail_timeslices;
+	for(int i=0;i<hyper_period;i++)
+		avail_timeslices.push_back(i);
+	//sort the partition_set
+	partition_set.sort(compare_partitions);
+	vector<int> qs;
+	int qs_total = 0;
+	for(auto it = partition_set.begin(); it!=partition_set.end();it++)
+	{
+		int q_now = hyper_period/(*it)->getAAFDown()*(*it)->getAAFUp();
+		qs_total += q_now;
+		qs.push_back(q_now);
+	}
+	vector<Partition *> t_list(hyper_period, nullptr);//this is the time-slice table in vector's form
+	int i=0;
+	for(auto it = partition_set.begin();it!=partition_set.end();it++)
+	{
+		int hp_now = avail_timeslices.size();
+		//std::cout<<"Allocating "<<(*it)->getID()<<std::endl;
+		//assign time slices to the first partition, maintain a set that could be used when check delta
+		set<int> occupied_time_index;
+		for(int k=0;k<qs[i];k++)
+		{
+			int index_now = (int)(floor(k*hp_now/qs[i]))%hp_now;
+			occupied_time_index.insert(index_now);
+			//std::cout<<"Assigning "<<avail_timeslices[index_now]<<" to "<<(*it)->getID()<<std::endl;
+			if(t_list[avail_timeslices[index_now]]!=nullptr)
+			{
+				std::cout<<"Not null pointer!?   "<<avail_timeslices[index_now]<<"  ";
+				std::cout<<t_list[avail_timeslices[index_now]]->getID()<<std::endl;
+			}
+			t_list[avail_timeslices[index_now]] = *it;//what if this place is not nullptr now
+		}
+		qs_total -= qs[i];
+
+		vector<int> temp;
+		for(int i=0;i<hp_now;i++)
+		{
+			if(occupied_time_index.count(i)==0)
+				temp.push_back(avail_timeslices[i]);
+		}
+		sort(temp.begin(), temp.end(), std::less<int>());
+		avail_timeslices = temp;
+
+		i++;
+	}
+
+		
+
+	//check the regularity and the time_slice table here
+	/*
+	int counter = 1;
+	unordered_map<string, int> t_num;
+	for(auto it = partition_set.begin(); it!= partition_set.end();it++)
+		t_num[(*it)->getID()] = 0;
+	for(int i=0;i<t_list.size();i++)
+	{
+		std::cout<<counter<<": ";
+		if(t_list.at(i)==nullptr)
+			std::cout<<"IDLE"<<std::endl;
+		else
+		{
+			std::cout<<t_list.at(i)->getID()<<std::endl;
+			t_num[t_list.at(i)->getID()] ++;
+		}
+		for(auto it2 = partition_set.begin();it2!=partition_set.end();it2++)
+		{
+			std::cout<<"("<<(*it2)->getID()<<")";
+			double s_regularity = t_num[(*it2)->getID()] - counter*((*it2)->getAAF());
+			std::cout<<s_regularity<<"; ";
+
+		}
+		std::cout<<std::endl;
+		counter++;
+		
+	}
+	*/
+	//assign t_list to the real timeslice-domain table.
+	for(int i=0;i<t_list.size();i++)
+	{
+		Partition *p_now = t_list[i];
+		insert_task_slice(p_now);
+	}
+	//the insertion needs further validation
+
+
+}
+string PCPU::showTTable()
+{
+	task_slice *now = t_table_root;
+	string result ="";
+	int counter = 1;
+	do
+	{
+		result += std::to_string(counter);
+		result += ": ";
+		if(now->p!=nullptr)
+			result += now->p->getID();
+		else
+			result += "IDLE";
+		result += "\n";
+		counter ++;
+		now = now->next;
+	} while(now!=t_table_root);
+	return result;
+
+}
 #endif

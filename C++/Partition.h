@@ -17,6 +17,7 @@ private:
 	double aaf;
 	int aaf_up;
 	int aaf_down;
+	double aaf_left;
 
 	vector<Job> job_queue;
 
@@ -38,11 +39,12 @@ public:
 	double getAF() const{return availability_factor;} 
 	double getReg() const{return regularity;}
 	string getID() const{return partition_id;}
-	void setAAF(double aaf_in){aaf = ceil(aaf_in*1000)/(double)1000;}//keep 4-digits' precision
+	void setAAF(double aaf_in){aaf = ceil(aaf_in*1000)/(double)1000; aaf_left = aaf;}//keep 4-digits' precision
 	void setAAFFrac(int a, int b){aaf_up = a; aaf_down = b; reduceAAF();}
 	int getAAFUp(){return aaf_up;}
 	int getAAFDown(){return aaf_down;}
 	double getAAF() const{return aaf;}
+	double getAAFLeft() const{return aaf_left;}
 	string printInfo()
 	{
 		string result = partition_id+":";
