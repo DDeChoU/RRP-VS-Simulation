@@ -142,6 +142,8 @@ public:
 	bool isHardRT(){return is_hard_rt;}
 	string getTaskId(){return task_id;}
 	string getJobId(){return job_id;}
+	void setPartitionId(string p_id){partition_id = p_id;}
+	string getPartitionId() const {return partition_id;}
 private:
 	string printTP(system_clock::time_point time_now)
 	{

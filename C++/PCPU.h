@@ -59,6 +59,7 @@ private:
 	task_slice *t_table_root;
 	task_slice *t_now;
 	int hyper_period;
+	unordered_map<string, Partition *> partitions;
 	//job_node *root;
 	//job_node *node_now;
 	//vector<string> time_par_table;
@@ -125,51 +126,51 @@ void PCPU::execute(int execution_time)
 
 void PCPU::run_pcpu(int port)
 {
-	/*
+	
 	//build up com_pipeections with the scheduler first
 	Socket_Conn com_pipe(port, false);
 	//cout<<"RUN_PCPU connected!"<<endl;
 	bool poweroff = false;
+	int time_slice_length = 10;//the time slice length now is 10 milliseconds.
 	while(true)
 	{
-		if(node_now)
+		if(t_now!=nullptr)
 		{
-			//cout<<"Trying to execute"<<endl;
-			//if there exists some vcpus in the pcpu list, then proceed to execute next one.
-			node_now = node_now->next;
-			Job *job_now = &node_now->j;
-			int basic_ts = 10;
-			double time_left = job_now->getComputationTime();
-
-			
-			if(time_left>basic_ts)
-			{
-				//cout<<"Executing a time slice"<<endl;
-				//if the task still needs more than basic_ts time, execute basic_ts.
-				execute(basic_ts);
-				job_now->setComputationTime(time_left - basic_ts);
-				//send execution info for documentation
-				//build a TaskSlice
-				TaskSlice ts(job_now->getJobId(), job_now->getTaskId(), basic_ts, job_now->getComputationTime(), job_now->isHardRT(), system_clock::now(), job_now->getDDL());
-				com_pipe.sendInfo(ts.wrap_info());
-			}
+			t_now = t_now->next;
+			if(t_now->p==nullptr)
+				execute(time_slice_length);
 			else
 			{
-				//cout<<"Executing what is left"<<endl;
-				//else execute the time left.
-				execute(time_left);
-				job_now->setComputationTime(0);
-				TaskSlice ts(job_now->getJobId(), job_now->getTaskId(), time_left, job_now->getComputationTime(), job_now->isHardRT(), system_clock::now(), job_now->getDDL());
-				com_pipe.sendInfo(ts.wrap_info());
-				//send the accomplish info
+				system_clock::time_point time_start = system_clock::now();
+				double ms_passed = 0;
+				while(ms_passed<=time_slice_length)
+				{
+					Job j_now = t_now->p->schedule();
+					double exe_time = j_now.getComputationTime();
+					if(exe_time<= time_slice_length - ms_passed)
+					{
+						execute(exe_time);
+					}
+					else
+					{
+						execute(time_slice_length - ms_passed);
+						j_now.setComputationTime(exe_time - (time_slice_length - ms_passed));
+						t_now->p->insertJob(j_now);
+						exe_time = time_slice_length - ms_passed;//use exe_time to record the time executed.
+					}
+					system_clock::time_point time_now = system_clock::now();
+					auto dur = time_now - time_start;
+					ms_passed = dur.count()/(double)1000;
+					//send a report here
+					TaskSlice ts(j_now.getJobId(), j_now.getTaskId(), exe_time, j_now.getComputationTime(), j_now.isHardRT(), time_now, j_now.getDDL());
+					com_pipe.sendInfo(ts.wrap_info());
 
-				//update the job list
-				job_node *tmp = node_now;
-				node_now = node_now->prev;
-				remove_job(tmp);
+				}
 			}
 		}
-		//hanld jobs received from the scheduler.
+		
+		
+		//hanld jobs received from the scheduler, insert into the right partition
 		vector<string> received_jobs = com_pipe.receiveInfo();
 		for(int i=0;i<received_jobs.size();i++)
 		{
@@ -180,22 +181,26 @@ void PCPU::run_pcpu(int port)
 			}
 			
 			Job j(received_jobs.at(i));
+			if(j.getPartitionId()=="")
+			{
+				std::cout<<"Job "<<j.getJobId()<<" does not have a partition.";
+			}
+			else
+			{
+				partitions[j.getPartitionId()]->insertJob(j);
+			}
 			//cout<<"Received in pcpu: "<<received_jobs.at(i)<<endl;
-			insert_job(j);
+			
 		}
 		if(poweroff)
 		{
-			cout<<"Cleaning objects"<<endl;
-			while(root!=nullptr)
-			{
-				remove_job(root);
-			}
+			std::cout<<"Cleaning objects"<<endl;
 			break;
 		}
 
 	}
-	cout<<"PCPU #"<<pcpu_id<<" shutting down"<<endl;
-	*/
+	std::cout<<"PCPU #"<<pcpu_id<<" shutting down"<<endl;
+	
 }
 
 
@@ -311,6 +316,7 @@ void PCPU::partition_single(list<Partition *> partition_set)
 		int q_now = hyper_period/(*it)->getAAFDown()*(*it)->getAAFUp();
 		qs_total += q_now;
 		qs.push_back(q_now);
+		partitions[(*it)->getID()] = (*it);
 	}
 	vector<Partition *> t_list(hyper_period, nullptr);//this is the time-slice table in vector's form
 	int i=0;
