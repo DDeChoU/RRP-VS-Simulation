@@ -52,7 +52,7 @@ vector<Partition> Generation::generate_partitions(double target_af)
 	*/
 	vector<Partition> result;
 	int counter = 0;
-	vector<double> afs = gen_kato_utilizations(target_af, 0.1, 1);
+	vector<double> afs = gen_kato_utilizations(target_af, 0.1, 0.8);
 	srand(time(NULL));
 	string prefix = "Par#";
 	for(int i=0;i<afs.size();i++)

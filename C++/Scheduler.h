@@ -54,15 +54,15 @@ private:
 	//initialize some parameters used to record the task execution 
 	
 	// the number of jobs that arrive
-	int total_job_num;
+	long long total_job_num;
 
 	//the number of jobs that miss the deadline
-	int total_miss_num = 0;
+	long long total_miss_num;
 public:
 	//the constructor takes in the number of pcpus
 	Scheduler(int p_num);
 
-	bool set_partitions(vector<Partition> partition_list);
+	bool set_partitions(vector<Partition> &partition_list);
 
 	//run simulates the schedule and should return a schedule in the form of string.
 	//pass the output redirection to run through ostream &out.
@@ -127,7 +127,7 @@ Scheduler::Scheduler(int p_num)
 
 vector<int> Scheduler::z_approx(double w, double n)
 {
-	int i = 1, j=0, m = 2;
+	int i = 0, j=0, m = 2;
 	double largest = 1;
 	vector<int> result;
 	while(true)
@@ -169,7 +169,6 @@ bool Scheduler::MulZ()
 		factors[cpu_id] = 0;
 		rests[cpu_id] = 1;
 	}
-
 	//calculate which resource each partition should be allocated to,
 	//do the calculation in non-decreasing order for partitions' af
 
@@ -189,11 +188,12 @@ bool Scheduler::MulZ()
 			partition_cpu_map[it->first] = res;
 		}*/
 	}
-
+	std::cout<<"Priority queue loop starts"<<std::endl;
 	while(!pq.empty())
 	{
 		Partition *p_temp = pq.top();
 		pq.pop();
+		//std::cout<<"Allocating "<<p_temp->getID()<<std::endl;
 		string res = mulZ_FFD_Alloc(p_temp, factors, rests);
 		//std::cout<<res<<std::endl;
 		if(res=="")
@@ -206,7 +206,7 @@ bool Scheduler::MulZ()
 			partition_cpu_map[p_temp->getID()] = res;
 		}
 	}
-	
+	//std::cout<<"Priority queue loop ends."<<std::endl;
 	//run aaf for each pcpu to set up the time-partition tables.
 	//the aaf of each partition is already calculated, no need to recalculate, invoke partition_single in pcpu here
 	/* Test this after the fraction part is tested. */
@@ -221,8 +221,8 @@ bool Scheduler::MulZ()
 			}
 		}
 		(it->second)->partition_single(partitions_now);
-		std::cout<<(it->second)->getID()<<std::endl;
-		std::cout<<(it->second)->showTTable();
+		//std::cout<<(it->second)->getID()<<std::endl;
+		//std::cout<<(it->second)->showTTable();
 
 	}
 	
@@ -260,14 +260,14 @@ string Scheduler::mulZ_FFD_Alloc(Partition *p, unordered_map<string, double> &fa
 			rests[pcpu_id_now] = 1 - r;
 			p->setAAF(r);
 			p->setAAFFrac(smallest_up, smallest_down);
-			std::cout<<"Final factor is: "<<r<<std::endl;
+			//std::cout<<"Final factor is: "<<r<<std::endl;
 			return pcpu_id_now;
 		}
 		else if(rests[it->first]>=r)
 		{
 			vector<int> rfrac= z_approx(p->getAF(), factors[pcpu_id_now]);
 			r = (double)rfrac[0]/rfrac[1];
-			std::cout<<"Final factor is: "<<r<<std::endl;
+			//std::cout<<"Final factor is: "<<r<<std::endl;
 			rests[pcpu_id_now] -= r;
 			p->setAAF(r);
 			p->setAAFFrac(rfrac[0], rfrac[1]);
@@ -277,7 +277,7 @@ string Scheduler::mulZ_FFD_Alloc(Partition *p, unordered_map<string, double> &fa
 	return "";
 }
 
-bool Scheduler::set_partitions(vector<Partition> partition_list)
+bool Scheduler::set_partitions(vector<Partition> &partition_list)
 {
 	//insert the partitions into variable 'partitions'
 	for(int i=0;i<partition_list.size();i++)
@@ -286,6 +286,7 @@ bool Scheduler::set_partitions(vector<Partition> partition_list)
 		//mind that if partition_list gets eliminated, the pointers in "partitions" will be invalid as well.
 	}
 	// map partitions to pcpu and maintain the time slice table here
+	//std::cout<<"MulZ starts."<<std::endl;
 	if(!MulZ())
 	{
 		std::cout<<"The partitions are not schedulable"<<std::endl;
@@ -305,26 +306,21 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 	int starting_port = 50;
 	vector<int> ports;//store all ports in this array, the first port is for the generator
 	for(int i=0;i<=pcpu_num;i++)
-		ports.push_back(starting_port+i);
-	unordered_map<string, Socket_Conn *> connections;
+		ports.push_back(starting_port+i*2);
+	//set two connections
+	unordered_map<string, Socket_Conn *> receive_connections;
+	unordered_map<string, Socket_Conn *> send_connections;
 	auto it = pcpus.begin();
-	for(int i=0;i<ports.size();i++)
+	for(int i=0;i<=pcpu_num;i++)
 	{
-		Socket_Conn *temp = new Socket_Conn(ports[i], true);
-		if(i==pcpu_num)
-		{
-			//the last one is OS's socket
-			connections["OS"] = temp;
-		}
-		else
-		{
-			connections[it->first] = temp;
-		}
 		int pid = fork();
+
+		//fork here get stuck! Needs to set up the server at the same time
 		if(pid==0)
 		{
 			//initialize the deadloop in each pcpu
-
+			//sleep to let the server set up first.
+			sleep(1);
 			if(i==pcpu_num)
 			{
 				os.generate_jobs( ports[i]);
@@ -333,22 +329,55 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			{
 				it->second->run_pcpu(ports[i]);
 			}
-
+			out<<"Child Process ends."<<std::endl;
 			exit(0);
 		}
-		it++;
+		else
+		{
+			Socket_Conn *temp = new Socket_Conn(ports[i], true);
+			if(i==pcpu_num)
+			{	
+				//the last one is OS's socket
+				receive_connections["OS"] = temp;
+				out<<"Building OS sending pipe"<<std::endl;
+			}
+			else
+			{
+				out<<"Building cpu sending pipe for"<<it->first<<std::endl;
+				receive_connections[it->first] = temp;
+			}
+			//let the other socket get prepared
+			sleep(1);
+			Socket_Conn *temp2 = new Socket_Conn(ports[i]+1, false);
+			if(i==pcpu_num)
+			{
+				send_connections["OS"] = temp2;
+				out<<"Building OS receiving pipe"<<std::endl;
+			}
+			else
+			{
+				out<<"Building cpu receiving pipe for"<<it->first<<std::endl;
+				send_connections[it->first] = temp2;
+				it++;
+			}
+
+		}
+		
 	}
+	//error occurs before the fork ends
+	//out<<"Fork ends"<<std::endl;
 	//go on to the scheduler's dead loop
 	system_clock::time_point start_time = system_clock::now();
 	while(true)
 	{
 		//receive jobs first from OS_Simulator
-		vector<string> arriving_jobs = connections["OS"]->receiveInfo();
-
+		//segmentation fault here????
+		vector<string> arriving_jobs = receive_connections["OS"]->receiveInfo();
+		//out<<arriving_jobs.size()<<" jobs received."<<std::endl;
 		for(int i=0;i<arriving_jobs.size();i++)
 		{
 			Job j_now(arriving_jobs.at(i));
-				//get the time left now and calculate the density
+			//get the time left now and calculate the density
 			auto dur = j_now.getDDL() - system_clock::now();
 			double ms_ddl = dur.count()/(double)1000;
 			double density = j_now.getComputationTime()/ms_ddl;
@@ -385,23 +414,28 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				{
 					//handle not schedulable here
 					out<<j_now.getJobId()<<" is not schedulable! \n";
-					//TODO: add counts here!
+					total_miss_num ++;
 					continue;
 				}
 				//modify the parameter partition selected here (aaf_left)
 				partitions[par_selected]->setAAFLeft(partitions[par_selected]->getAAFLeft() - density);
-				//TODO: maintain the job-partition map here!
+				//maintain the job-partition map here
 				task_partition_map[j_now.getTaskId()] = par_selected;
 			}
+			//out<<j_now.getJobId()<<" is scheduled to "<<par_selected<<std::endl;
 			//modify the job's partition tag and allocate the task to the pcpu that partition is on.
 			j_now.setPartitionId(par_selected);
 			string pcpu_now = partition_cpu_map[par_selected];
-			connections[pcpu_now]->sendInfo(j_now.wrap_info());
+			send_connections[pcpu_now]->sendInfo(j_now.wrap_info());
 		}
 		//Receive info from each pcpu.
-		for(auto it = connections.begin();it!=connections.end();it++)
+		for(auto it = receive_connections.begin();it!=receive_connections.end();it++)
 		{
+			if(it->first=="OS")
+				continue;
 			vector<string> taskslices = it->second->receiveInfo();
+			//where does the task slice come from?
+			//out<<taskslices.size()<<" task slices done."<<std::endl;
 			for(int i=0;i<taskslices.size();i++)
 			{
 				TaskSlice ts(taskslices.at(i));
@@ -409,7 +443,8 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				{
 					total_miss_num ++;
 				}
-				out<<taskslices.at(i);
+				out<<"Task slice report:"<<ts.wrap_info()<<std::endl;
+				//out<<taskslices.at(i)<<std::endl;
 			}
 		}
 
@@ -419,7 +454,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		{
 			//send poweroff to all children processes.
 			string shutdownSignal = "Poweroff\n";
-			for(auto it=connections.begin();it!=connections.end();it++)
+			for(auto it=send_connections.begin();it!=send_connections.end();it++)
 			{
 				it->second->sendInfo(shutdownSignal);
 			}
@@ -429,6 +464,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 
 
 	}
+	sleep(2);
 	cout<<"Shutting down scheduler.\n";
 }
 

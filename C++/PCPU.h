@@ -36,12 +36,12 @@ struct job_node
 	}
 };
 
-struct task_slice
+struct time_slice
 {
 	Partition *p;
-	task_slice *next;
-	task_slice *prev;
-	task_slice(Partition *p_now):p(p_now)
+	time_slice *next;
+	time_slice *prev;
+	time_slice(Partition *p_now):p(p_now)
 	{
 		next = prev = nullptr;
 	}
@@ -56,8 +56,8 @@ class PCPU
 {
 private:
 	string pcpu_id;
-	task_slice *t_table_root;
-	task_slice *t_now;
+	time_slice *t_table_root;
+	time_slice *t_now;
 	int hyper_period;
 	unordered_map<string, Partition *> partitions;
 	//job_node *root;
@@ -98,7 +98,7 @@ private:
 	int lcm(int t1, int t2);
 
 
-	void insert_task_slice(Partition *p);
+	void insert_time_slice(Partition *p);
 
 };
 PCPU::PCPU(string id)
@@ -127,9 +127,10 @@ void PCPU::execute(int execution_time)
 void PCPU::run_pcpu(int port)
 {
 	
-	//build up com_pipeections with the scheduler first
-	Socket_Conn com_pipe(port, false);
-	//cout<<"RUN_PCPU connected!"<<endl;
+	//build up two pipes with the scheduler first
+	Socket_Conn send_pipe(port, false);
+	Socket_Conn recv_pipe(port+1, true); 
+	cout<<"RUN_PCPU connected!"<<endl;
 	bool poweroff = false;
 	int time_slice_length = 10;//the time slice length now is 10 milliseconds.
 	while(true)
@@ -138,14 +139,23 @@ void PCPU::run_pcpu(int port)
 		{
 			t_now = t_now->next;
 			if(t_now->p==nullptr)
+			{
+				//cout<<"Running an idle time slice"<<endl;
 				execute(time_slice_length);
+			}
 			else
 			{
+				//cout<<"Running a non-idle time slice"<<endl;
 				system_clock::time_point time_start = system_clock::now();
 				double ms_passed = 0;
 				while(ms_passed<=time_slice_length)
 				{
-					Job j_now = t_now->p->schedule();
+					Job j_now;
+					if(!t_now->p->schedule(j_now))
+					{
+						execute(time_slice_length);
+						break;
+					}
 					double exe_time = j_now.getComputationTime();
 					if(exe_time<= time_slice_length - ms_passed)
 					{
@@ -163,7 +173,8 @@ void PCPU::run_pcpu(int port)
 					ms_passed = dur.count()/(double)1000;
 					//send a report here
 					TaskSlice ts(j_now.getJobId(), j_now.getTaskId(), exe_time, j_now.getComputationTime(), j_now.isHardRT(), time_now, j_now.getDDL());
-					com_pipe.sendInfo(ts.wrap_info());
+					//cout<<"In CPU: "<<ts.wrap_info()<<std::endl;
+					send_pipe.sendInfo(ts.wrap_info());
 
 				}
 			}
@@ -171,9 +182,11 @@ void PCPU::run_pcpu(int port)
 		
 		
 		//hanld jobs received from the scheduler, insert into the right partition
-		vector<string> received_jobs = com_pipe.receiveInfo();
+		vector<string> received_jobs = recv_pipe.receiveInfo();
+		//std::cout<<received_jobs.size()<<std::endl;
 		for(int i=0;i<received_jobs.size();i++)
 		{
+			//cout<<"One job received."<<std::endl;
 			if(received_jobs.at(i).find("Poweroff")!=-1)
 			{
 				poweroff = true;
@@ -183,7 +196,8 @@ void PCPU::run_pcpu(int port)
 			Job j(received_jobs.at(i));
 			if(j.getPartitionId()=="")
 			{
-				std::cout<<"Job "<<j.getJobId()<<" does not have a partition.";
+				std::cout<<j.getPartitionId()<<std::endl;
+				std::cout<<"Job "<<j.getJobId()<<" does not have a partition."<<std::endl;
 			}
 			else
 			{
@@ -205,9 +219,9 @@ void PCPU::run_pcpu(int port)
 
 
 
-void PCPU::insert_task_slice(Partition *p)
+void PCPU::insert_time_slice(Partition *p)
 {
-	task_slice *temp = new task_slice(p);
+	time_slice *temp = new time_slice(p);
 	/* outputs used for debugging.
 	cout<<a.getJobId()<<": ";
 	system_clock::time_point t_now = system_clock::now();
@@ -228,7 +242,7 @@ void PCPU::insert_task_slice(Partition *p)
 	}
 	else
 	{
-		task_slice *iter = t_table_root;
+		time_slice *iter = t_table_root;
 		while(iter->next!=t_table_root)
 		{
 			iter = iter->next;
@@ -240,10 +254,11 @@ void PCPU::insert_task_slice(Partition *p)
 	}
 }
 
-//remove all task_slice
+//remove all time_slice
 PCPU::~PCPU()
 {
-	task_slice *now = t_table_root;
+	cout<<"Cleaning the object of pcpu."<<std::endl;
+	time_slice *now = t_table_root;
 	if(now==nullptr)
 		return;
 	while(now->next!=now)
@@ -251,7 +266,7 @@ PCPU::~PCPU()
 		//delete node now
 		now->prev->next = now->next;
 		now->next->prev = now->prev;
-		task_slice *temp = now->next;
+		time_slice *temp = now->next;
 		delete now;
 		now = temp;
 	}
@@ -331,11 +346,11 @@ void PCPU::partition_single(list<Partition *> partition_set)
 			int index_now = (int)(floor(k*hp_now/qs[i]))%hp_now;
 			occupied_time_index.insert(index_now);
 			//std::cout<<"Assigning "<<avail_timeslices[index_now]<<" to "<<(*it)->getID()<<std::endl;
-			if(t_list[avail_timeslices[index_now]]!=nullptr)
-			{
-				std::cout<<"Not null pointer!?   "<<avail_timeslices[index_now]<<"  ";
-				std::cout<<t_list[avail_timeslices[index_now]]->getID()<<std::endl;
-			}
+			//if(t_list[avail_timeslices[index_now]]!=nullptr)
+			//{
+				//std::cout<<"Not null pointer!?   "<<avail_timeslices[index_now]<<"  ";
+				//std::cout<<t_list[avail_timeslices[index_now]]->getID()<<std::endl;
+			//}
 			t_list[avail_timeslices[index_now]] = *it;//what if this place is not nullptr now
 		}
 		qs_total -= qs[i];
@@ -386,7 +401,7 @@ void PCPU::partition_single(list<Partition *> partition_set)
 	for(int i=0;i<t_list.size();i++)
 	{
 		Partition *p_now = t_list[i];
-		insert_task_slice(p_now);
+		insert_time_slice(p_now);
 	}
 	//the insertion needs further validation
 
@@ -394,7 +409,7 @@ void PCPU::partition_single(list<Partition *> partition_set)
 }
 string PCPU::showTTable()
 {
-	task_slice *now = t_table_root;
+	time_slice *now = t_table_root;
 	string result ="";
 	int counter = 1;
 	do

@@ -61,7 +61,7 @@ public:
 	}
 
 	//return the job to be executed. Simply return the first one in the list.
-	Job schedule();
+	bool schedule(Job &j);
 
 	//insert the one into the proper place so that the list is EDF. To be implemented.
 	void insertJob(Job j);
@@ -82,11 +82,15 @@ private:
 
 };
 
-Job Partition:: schedule()
+bool Partition:: schedule(Job &j)
 {
-	Job temp = job_queue.front();
+	if(job_queue.empty())
+	{
+		return false;
+	}
+	j = job_queue.front();
 	job_queue.pop_front();
-	return temp;
+	return true;
 }
 
 void Partition::insertJob(Job j)

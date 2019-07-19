@@ -1,16 +1,28 @@
 #include "Scheduler.h"
 #include "Generation.h"
 using std::cout;
+using std::endl;
 
-int main()
+struct data
+{
+	int total_miss_num;
+	int total_job_num;
+	data()
+	{
+		total_job_num = 0;
+		total_miss_num = 0;
+	}
+};
+
+
+data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length)
 {
 	Generation g;
-	//set target_af = 5, pcpu = 8, load_ratio = 0.5, periodic_ratio = 1, 
-	//highest density = largest availability factor, hard rt ratio = 0
-	int pcpu_num = 8;
+	//int pcpu_num = 5;
 	Scheduler s(pcpu_num);
-	double target_af_sum = 5;
-	vector<Partition> ps = g.generate_partitions(target_af_sum);
+	//double target_af_sum = 3;
+	vector<Partition> ps = g.generate_partitions(target_af_sum);//the partitions in ps is used in Scheduler s
+	cout<<"partitions generated."<<endl;
 	while(!s.set_partitions(ps))
 	{
 		cout<<"Resetting partitions.\n";
@@ -23,15 +35,44 @@ int main()
 		if(ps.at(i).getAF()>highest_af)
 			highest_af = ps.at(i).getAF();
 	}
-	double load_ratio = 0.5;
+	//double load_ratio = 0.5;
 	double target_load = target_af_sum*load_ratio;
 	vector<Task> tasks = g.generate_tasks(target_load, false, 1, highest_af, 0);
 
 	//simulate 30 seconds, which is 30000 milliseconds.
-	s.run(tasks, cout, 1, 30000);
+	s.run(tasks, cout, 1, simulation_length);
+	data result;
+	result.total_miss_num = s.getMissNum();
+	result.total_job_num = s.getJobNum();
+	return result;
+}
 
-	cout<<s.getJobNum()<<std::endl;
-	cout<<s.getMissNum()<<std::endl;
+int main()
+{
+	int t_j = 0;
+	int t_m = 0;
+	int schdulable_num = 0;
+
+	int repeat_time = 1000;
+
+	int pcpu_num = 5;
+	double target_af_sum = 3;
+	double load_ratio = 0.5;
+	long long simulation_length = 30000;
+
+	for(int i=0;i<repeat_time;i++)
+	{
+		cout<<"********************"<<endl;
+		cout<<"Round "<<i<<endl;
+		data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length);
+		t_j += temp_result.total_job_num;
+		t_m += temp_result.total_miss_num;
+		if(temp_result.total_job_num == temp_result.total_miss_num)
+			schdulable_num ++;
+		cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
+		cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
+		cout<<"********************"<<endl;
+	}
 
 
 

@@ -31,8 +31,8 @@ public:
 		//send in the pipe and mark that this process is not a server
 		//to be tested
 
-		Socket_Conn com_pipe(port, false);
-
+		Socket_Conn send_pipe(port, false);
+		Socket_Conn recv_pipe(port+1, true);
 		//sort tasks in arrival time order
 		sort(task_list.begin(), task_list.end());
 
@@ -45,12 +45,14 @@ public:
 		system_clock::time_point start_point = system_clock::now();
 		//cout<<"Start point: "<<printTime(start_point)<<endl;
 		//generate jobs
+		//std::cout<<"Into deadloop/"<<std::endl;
 		while(1)
 		{
 			system_clock::time_point time_now = system_clock::now();
 			auto du = time_now - start_point;//by default duration is using microseconds
 			double time_passed = du.count()/(double)1000;
 			//if not all tasks have arrived
+			//std::cout<<task_list.size()<<","<<counter<<std::endl;
 			if(counter<task_list.size())
 			{
 				double arr_time_now = task_list[counter].getArrTime();
@@ -68,7 +70,7 @@ public:
 				}
 
 			}
-
+			//std::cout<<"Job loop."<<std::endl;
 			for(int i=0;i<counter;i++)
 			{
 				Task *t_now = &task_list[i];
@@ -100,12 +102,12 @@ public:
 					//cout<<j_now.wrap_info()<<endl;
 
 					phases[i]++;
-					com_pipe.sendInfo(j_now.wrap_info());
+					send_pipe.sendInfo(j_now.wrap_info());
 
 				}
 			}
 			bool poweroff = false;
-			vector<string> end_signal = com_pipe.receiveInfo();
+			vector<string> end_signal = recv_pipe.receiveInfo();
 			for(int i=0;i<end_signal.size();i++)
 			{
 				if(end_signal[i].find("Poweroff")!=-1)

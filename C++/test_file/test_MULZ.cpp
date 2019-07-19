@@ -94,7 +94,8 @@ int main()
 	partition_list.push_back(p8);
 	partition_list.push_back(p9);
 	vector<Task> task_list;
-	s.run(task_list, partition_list, cout);
+	s.set_partitions(partition_list);
+	s.run(task_list, cout,1, 1000);
 
 	return 0;
 }

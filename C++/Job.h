@@ -29,6 +29,15 @@ private:
 	string job_id;
 	string partition_id;
 public:
+	//default constructor
+	Job()
+	{
+		computation_time = 0;
+		is_hard_rt = false;
+		task_id = "";
+		job_id = "";
+		partition_id = "";
+	}
 	//constructor
 	Job(double c, system_clock::time_point D, string t_id, int phase, bool hard_rt = false)
 	{
@@ -37,6 +46,7 @@ public:
 		is_hard_rt = hard_rt;
 		task_id = t_id;
 		job_id = task_id+"-"+std::to_string(phase);
+		partition_id = "";
 	}
 
 	//copy constructor
@@ -47,6 +57,7 @@ public:
 		is_hard_rt = a.is_hard_rt;
 		task_id = a.task_id;
 		job_id = a.job_id;
+		partition_id = a.partition_id;
 	}
 
 	//construct a job object with a string produced by wrap_info
@@ -87,6 +98,11 @@ public:
 				}
 				case 5:
 				{
+					partition_id = token;
+					break;
+				}
+				case 6:
+				{
 					task_id = token;
 					break;
 				}
@@ -112,6 +128,7 @@ public:
 		//ss<<std::put_time(localtime(&et), "%F %T")<<"."<<std::setfill('0')<<std::setw(3)<<nowMS.count();
 		result += std::to_string(nowMS.count())+",";
 		result += std::to_string(is_hard_rt)+",";
+		result += partition_id+",";
 		result += task_id+"\n";
 		return result;
 
