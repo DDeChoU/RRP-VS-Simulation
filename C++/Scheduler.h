@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <algorithm>
+#include <signal.h>
+#include <unordered_set>
 
 #include "Task.h"
 #include "Job.h"
@@ -24,6 +26,7 @@ using std::list;
 using std::priority_queue;
 using std::set;
 using std::vector;
+using std::unordered_set;
 class Scheduler
 {
 private:
@@ -188,7 +191,7 @@ bool Scheduler::MulZ()
 			partition_cpu_map[it->first] = res;
 		}*/
 	}
-	std::cout<<"Priority queue loop starts"<<std::endl;
+	//std::cout<<"Priority queue loop starts"<<std::endl;
 	while(!pq.empty())
 	{
 		Partition *p_temp = pq.top();
@@ -310,7 +313,9 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 	//set two connections
 	unordered_map<string, Socket_Conn *> receive_connections;
 	unordered_map<string, Socket_Conn *> send_connections;
+	vector<int> pids;
 	auto it = pcpus.begin();
+	unordered_set<string> missed_jobs;
 	for(int i=0;i<=pcpu_num;i++)
 	{
 		int pid = fork();
@@ -334,6 +339,8 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		}
 		else
 		{
+			out<<"New process: "<<pid<<std::endl;
+			pids.push_back(pid);
 			Socket_Conn *temp = new Socket_Conn(ports[i], true);
 			if(i==pcpu_num)
 			{	
@@ -439,8 +446,9 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			for(int i=0;i<taskslices.size();i++)
 			{
 				TaskSlice ts(taskslices.at(i));
-				if(!ts.isOnTime())
+				if(!ts.isOnTime()&&missed_jobs.count(ts.getJobID())==0)
 				{
+					missed_jobs.insert(ts.getJobID());
 					total_miss_num ++;
 				}
 				out<<"Task slice report:"<<ts.wrap_info()<<std::endl;
@@ -452,11 +460,28 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		double ms = dur.count()/(double)1000;
 		if(ms>=simulation_time)
 		{
+			/*
 			//send poweroff to all children processes.
 			string shutdownSignal = "Poweroff\n";
 			for(auto it=send_connections.begin();it!=send_connections.end();it++)
 			{
+				out<<"Shutting "<<it->first<<std::endl;
 				it->second->sendInfo(shutdownSignal);
+				sleep(1);
+			}*/
+			for(int i=0;i<pids.size();i++)
+			{
+				out<<"Killing "<<pids.at(i)<<std::endl;
+				kill(pids.at(i), 9);
+
+			}
+			for(auto it = send_connections.begin();it!=send_connections.end();it++)
+			{
+				it->second->shutDown();
+			}
+			for(auto it=receive_connections.begin();it!=receive_connections.end();it++)
+			{
+				it->second->shutDown();
 			}
 			break;
 
@@ -464,7 +489,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 
 
 	}
-	sleep(2);
+
 	cout<<"Shutting down scheduler.\n";
 }
 

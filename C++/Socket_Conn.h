@@ -9,6 +9,7 @@
 #include <netdb.h> 
 #include <string>
 #include <vector>
+
 using std::string;
 using std::vector;
 #ifndef SOCKET_CONN_H
@@ -21,6 +22,7 @@ public:
 	//don't forget to set the connection as non-blocked after the connection is built.
 	void sendInfo(string info);//send info out, always contain a '\n' at the end!!
 	vector<string> receiveInfo();//try to receive, non-blocked, if no info is inside, simply return an empty string.
+	void shutDown();
 	~Socket_Conn();
 private:
 	int sockfd;
@@ -132,6 +134,12 @@ vector<string> Socket_Conn::receiveInfo()
 		last_time_left = buff_str;
 	return result;
 
+}
+void Socket_Conn::shutDown()
+{
+	if(isServer)
+		close(connfd);
+	close(sockfd);
 }
 Socket_Conn::~Socket_Conn()
 {

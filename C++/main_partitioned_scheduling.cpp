@@ -55,23 +55,27 @@ int main()
 
 	int repeat_time = 1000;
 
-	int pcpu_num = 5;
+	int pcpu_num = 4;
 	double target_af_sum = 3;
 	double load_ratio = 0.5;
 	long long simulation_length = 30000;
 
 	for(int i=0;i<repeat_time;i++)
 	{
+		//this loop cannot be automatically repeated, or else: port already in use! Why???
 		cout<<"********************"<<endl;
+		//sleep(10);
 		cout<<"Round "<<i<<endl;
 		data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length);
 		t_j += temp_result.total_job_num;
 		t_m += temp_result.total_miss_num;
-		if(temp_result.total_job_num == temp_result.total_miss_num)
+		if(temp_result.total_miss_num == 0)
 			schdulable_num ++;
 		cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
 		cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
 		cout<<"********************"<<endl;
+
+		//sleep(10);
 	}
 
 
