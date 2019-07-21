@@ -1,5 +1,7 @@
 #include "Scheduler.h"
 #include "Generation.h"
+#include <fstream>
+#include <string>
 using std::cout;
 using std::endl;
 
@@ -15,7 +17,7 @@ struct data
 };
 
 
-data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length)
+data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length, fstream &out)
 {
 	Generation g;
 	//int pcpu_num = 5;
@@ -40,7 +42,7 @@ data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, lon
 	vector<Task> tasks = g.generate_tasks(target_load, false, 1, highest_af, 0);
 
 	//simulate 30 seconds, which is 30000 milliseconds.
-	s.run(tasks, cout, 1, simulation_length);
+	s.run(tasks, out, 1, simulation_length);
 	data result;
 	result.total_miss_num = s.getMissNum();
 	result.total_job_num = s.getJobNum();
@@ -60,13 +62,16 @@ int main()
 	double load_ratio = 0.5;
 	long long simulation_length = 30000;
 
+	std::fstream out;
+	string file_name = std::to_string(load_ratio)+".log";
+	out.open(file_name, std::fstream::out);
 	for(int i=0;i<repeat_time;i++)
 	{
 		//this loop cannot be automatically repeated, or else: port already in use! Why???
 		cout<<"********************"<<endl;
 		//sleep(10);
 		cout<<"Round "<<i<<endl;
-		data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length);
+		data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out);
 		t_j += temp_result.total_job_num;
 		t_m += temp_result.total_miss_num;
 		if(temp_result.total_miss_num == 0)

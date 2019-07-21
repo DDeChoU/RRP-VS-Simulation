@@ -130,7 +130,7 @@ void PCPU::run_pcpu(int port)
 	//build up two pipes with the scheduler first
 	Socket_Conn send_pipe(port, false);
 	Socket_Conn recv_pipe(port+1, true); 
-	cout<<"RUN_PCPU connected!"<<endl;
+	//cout<<"RUN_PCPU connected!"<<endl;
 	bool poweroff = false;
 	int time_slice_length = 10;//the time slice length now is 10 milliseconds.
 	while(true)

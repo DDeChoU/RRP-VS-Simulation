@@ -460,7 +460,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		double ms = dur.count()/(double)1000;
 		if(ms>=simulation_time)
 		{
-			/*
+			
 			//send poweroff to all children processes.
 			string shutdownSignal = "Poweroff\n";
 			for(auto it=send_connections.begin();it!=send_connections.end();it++)
@@ -468,20 +468,25 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				out<<"Shutting "<<it->first<<std::endl;
 				it->second->sendInfo(shutdownSignal);
 				sleep(1);
-			}*/
+			}
+
+			/*
+			*/
+			for(auto it = send_connections.begin();it!=send_connections.end();it++)
+			{
+				it->second->shutDown();
+				delete it->second;
+			}
+			for(auto it=receive_connections.begin();it!=receive_connections.end();it++)
+			{
+				it->second->shutDown();
+				delete it->second;
+			}
 			for(int i=0;i<pids.size();i++)
 			{
 				out<<"Killing "<<pids.at(i)<<std::endl;
 				kill(pids.at(i), 9);
 
-			}
-			for(auto it = send_connections.begin();it!=send_connections.end();it++)
-			{
-				it->second->shutDown();
-			}
-			for(auto it=receive_connections.begin();it!=receive_connections.end();it++)
-			{
-				it->second->shutDown();
 			}
 			break;
 
