@@ -2,6 +2,8 @@
 #include "Generation.h"
 #include <fstream>
 #include <string>
+#include <sys/types.h>
+#include <sys/wait.h>
 using std::cout;
 using std::endl;
 
@@ -68,18 +70,23 @@ int main()
 	for(int i=0;i<repeat_time;i++)
 	{
 		//this loop cannot be automatically repeated, or else: port already in use! Why???
-		cout<<"********************"<<endl;
-		//sleep(10);
-		cout<<"Round "<<i<<endl;
-		data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out);
-		t_j += temp_result.total_job_num;
-		t_m += temp_result.total_miss_num;
-		if(temp_result.total_miss_num == 0)
-			schdulable_num ++;
-		cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
-		cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
-		cout<<"********************"<<endl;
-
+		int pid = fork();
+		if(pid==0)
+		{
+			cout<<"********************"<<endl;
+			//sleep(10);
+			cout<<"Round "<<i<<endl;
+			data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out);
+			t_j += temp_result.total_job_num;
+			t_m += temp_result.total_miss_num;
+			if(temp_result.total_miss_num == 0)
+				schdulable_num ++;
+			cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
+			cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
+			cout<<"********************"<<endl;
+			exit(0);
+		}
+		waitpid(pid, NULL, 0);
 		//sleep(10);
 	}
 
