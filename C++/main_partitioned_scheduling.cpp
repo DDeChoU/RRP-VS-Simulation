@@ -4,6 +4,9 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 using std::cout;
 using std::endl;
 
@@ -68,33 +71,45 @@ int main(int argc, char *argv[])
 	long long simulation_length = 30000;
 	int starting_point = 5000;
 
+	int scheduling_mode = 1;
 	std::fstream out;
-	string file_name = std::to_string(load_ratio)+".log";
+	string file_name = std::to_string(scheduling_mode)+"_"+std::to_string(load_ratio)+".log";
 	out.open(file_name, std::fstream::out);
 	for(int i=0;i<repeat_time;i++)
 	{
 		if(i%50==0 && i!=0)
 			starting_point += 10;
-		//this loop cannot be automatically repeated, or else: port already in use! Why???
+		int fd[2];
+		pipe(fd);
+
+		cout<<"********************"<<endl;
+		//sleep(10);
+		cout<<"Round "<<i<<endl;
 		int pid = fork();
 		if(pid==0)
 		{
-			cout<<"********************"<<endl;
-			//sleep(10);
-			cout<<"Round "<<i<<endl;
+			close(fd[0]);
 			data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out, starting_point);
 			t_j += temp_result.total_job_num;
 			t_m += temp_result.total_miss_num;
 			if(temp_result.total_miss_num == 0)
 				schdulable_num ++;
-			cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
-			cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
-			cout<<"********************"<<endl;
+			write(fd[1], &t_j, sizeof(t_j));
+			write(fd[1], &t_m, sizeof(t_m));
+			write(fd[1], &schdulable_num, sizeof(schdulable_num));
 			exit(0);
 		}
 		waitpid(pid, NULL, 0);
-		//sleep(10);
+		close(fd[1]);
+		read(fd[0], &t_j, sizeof(t_j));
+		read(fd[0], &t_m, sizeof(t_m));
+		read(fd[0], &schdulable_num, sizeof(schdulable_num));
+		cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
+		cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
+		cout<<"********************"<<endl;
 	}
+	out.flush();
+	out.close();
 
 
 

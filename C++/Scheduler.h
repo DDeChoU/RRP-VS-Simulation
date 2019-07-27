@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <signal.h>
 #include <unordered_set>
+#include <limits.h>
 
 #include "Task.h"
 #include "Job.h"
