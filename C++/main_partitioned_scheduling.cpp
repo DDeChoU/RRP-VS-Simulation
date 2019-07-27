@@ -19,7 +19,7 @@ struct data
 };
 
 
-data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length, fstream &out)
+data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length, fstream &out, int starting_point)
 {
 	Generation g;
 	//int pcpu_num = 5;
@@ -44,15 +44,17 @@ data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, lon
 	vector<Task> tasks = g.generate_tasks(target_load, false, 1, highest_af, 0);
 
 	//simulate 30 seconds, which is 30000 milliseconds.
-	s.run(tasks, out, 1, simulation_length);
+	s.run(tasks, out, 1, simulation_length, starting_point);
 	data result;
 	result.total_miss_num = s.getMissNum();
 	result.total_job_num = s.getJobNum();
 	return result;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+	if(argc<=1)
+		return 0;
 	int t_j = 0;
 	int t_m = 0;
 	int schdulable_num = 0;
@@ -61,14 +63,18 @@ int main()
 
 	int pcpu_num = 4;
 	double target_af_sum = 3;
-	double load_ratio = 0.5;
+	//double load_ratio = 0.5;
+	double load_ratio = atof(argv[1]);
 	long long simulation_length = 30000;
+	int starting_point = 5000;
 
 	std::fstream out;
 	string file_name = std::to_string(load_ratio)+".log";
 	out.open(file_name, std::fstream::out);
 	for(int i=0;i<repeat_time;i++)
 	{
+		if(i%50==0 && i!=0)
+			starting_point += 10;
 		//this loop cannot be automatically repeated, or else: port already in use! Why???
 		int pid = fork();
 		if(pid==0)
@@ -76,7 +82,7 @@ int main()
 			cout<<"********************"<<endl;
 			//sleep(10);
 			cout<<"Round "<<i<<endl;
-			data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out);
+			data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out, starting_point);
 			t_j += temp_result.total_job_num;
 			t_m += temp_result.total_miss_num;
 			if(temp_result.total_miss_num == 0)
