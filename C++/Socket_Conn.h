@@ -9,6 +9,7 @@
 #include <netdb.h> 
 #include <string>
 #include <vector>
+#include <fcntl.h>
 
 using std::string;
 using std::vector;
@@ -61,6 +62,11 @@ Socket_Conn::Socket_Conn(int portno, bool s)
 		listen(sockfd,5);
 		clilen = sizeof(cli_addr);
 		newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *)&clilen);
+		//int status = fcntl(newsockfd, F_SETFL, fcntl(newsockfd, F_GETFL, 0) | O_NONBLOCK);
+		//status = fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL, 0) | O_NONBLOCK);
+		//if (status == -1){
+		//	perror("calling fcntl");
+		//}
 		if (newsockfd < 0) 
 			error("ERROR on accept");
 		connfd = newsockfd;

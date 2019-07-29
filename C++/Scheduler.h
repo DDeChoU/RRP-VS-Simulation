@@ -386,9 +386,10 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		{
 			Job j_now(arriving_jobs.at(i));
 			//get the time left now and calculate the density
-			auto dur = j_now.getDDL() - system_clock::now();
+			auto dur = duration_cast<microseconds>(j_now.getDDL() - system_clock::now());
 			double ms_ddl = dur.count()/(double)1000;
 			double density = j_now.getComputationTime()/ms_ddl;
+			//out<<"Job received "<<j_now.print_info()<<"\n";
 			string par_selected = "";
 			total_job_num ++;
 			if(task_partition_map.count(j_now.getTaskId())!=0)
@@ -425,12 +426,13 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 					total_miss_num ++;
 					continue;
 				}
+
 				//modify the parameter partition selected here (aaf_left)
 				partitions[par_selected]->setAAFLeft(partitions[par_selected]->getAAFLeft() - density);
 				//maintain the job-partition map here
 				task_partition_map[j_now.getTaskId()] = par_selected;
 			}
-			//out<<j_now.getJobId()<<" is scheduled to "<<par_selected<<std::endl;
+			out<<j_now.getJobId()<<" is scheduled to "<<par_selected<<std::endl;
 			//modify the job's partition tag and allocate the task to the pcpu that partition is on.
 			j_now.setPartitionId(par_selected);
 			string pcpu_now = partition_cpu_map[par_selected];
@@ -457,7 +459,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			}
 		}
 
-		auto dur = system_clock::now() - start_time;
+		auto dur = duration_cast<microseconds> (system_clock::now() - start_time);
 		double ms = dur.count()/(double)1000;
 		if(ms>=simulation_time)
 		{
@@ -492,7 +494,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			break;
 
 		}
-
+		out.flush();
 
 	}
 

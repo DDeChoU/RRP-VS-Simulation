@@ -49,7 +49,7 @@ public:
 		while(1)
 		{
 			system_clock::time_point time_now = system_clock::now();
-			auto du = time_now - start_point;//by default duration is using microseconds
+			auto du = duration_cast<microseconds>(time_now - start_point);//by default duration is using microseconds
 			double time_passed = du.count()/(double)1000;
 			//if not all tasks have arrived
 			//std::cout<<task_list.size()<<","<<counter<<std::endl;
@@ -60,6 +60,7 @@ public:
 				{
 					counter++;
 					//cout<<"Task "<<counter<<" arrives"<<endl;
+					//cout<<time_passed<<endl;
 					if(counter>=task_list.size())
 					{
 						//cout<<"All tasks have arrived!"<<endl;
@@ -99,7 +100,7 @@ public:
 					//send arb_ddl, WCET and id into the constructor
 					Job j_now(t_now->getWCET(), arb_ddl, t_now->getID(), phases.at(i), t_now->isPeriodic());
 					//send it through the socket.
-					//cout<<j_now.wrap_info()<<endl;
+					//cout<<"Sending " <<j_now.wrap_info()<<endl;
 
 					phases[i]++;
 					send_pipe.sendInfo(j_now.wrap_info());

@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <ctime>
 
 using std::cout;
 using std::endl;
@@ -22,7 +23,7 @@ struct data
 };
 
 
-data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length, fstream &out, int starting_point)
+data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length, ostream &out, int starting_point)
 {
 	Generation g;
 	//int pcpu_num = 5;
@@ -45,9 +46,15 @@ data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, lon
 	//double load_ratio = 0.5;
 	double target_load = target_af_sum*load_ratio;
 	vector<Task> tasks = g.generate_tasks(target_load, false, 1, highest_af, 0);
-
+	/*for(int tc = 0; tc<tasks.size(); tc++)
+	{
+		cout<<tasks[tc].printInfo()<<"\n";
+	}*/
 	//simulate 30 seconds, which is 30000 milliseconds.
+	int start_t = time(NULL);
 	s.run(tasks, out, 1, simulation_length, starting_point);
+	int end_t = time(NULL);
+	cout<<"Time spent in run: "<<end_t - start_t<<endl;
 	data result;
 	result.total_miss_num = s.getMissNum();
 	result.total_job_num = s.getJobNum();

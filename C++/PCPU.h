@@ -117,7 +117,7 @@ void PCPU::execute(int execution_time)
 	while(true)
 	{
 		system_clock::time_point time_now = system_clock::now();
-		auto dur = time_now - time_start;
+		auto dur = duration_cast<microseconds>(time_now - time_start);
 		double ms = dur.count()/(double)1000;
 		if(ms>=execution_time)
 			return;
@@ -146,37 +146,26 @@ void PCPU::run_pcpu(int port)
 			else
 			{
 				//cout<<"Running a non-idle time slice"<<endl;
-				system_clock::time_point time_start = system_clock::now();
-				double ms_passed = 0;
-				while(ms_passed<=time_slice_length)
+				Job j_now;
+				if(!t_now->p->schedule(j_now))
 				{
-					Job j_now;
-					if(!t_now->p->schedule(j_now))
-					{
-						execute(time_slice_length);
-						break;
-					}
+					execute(time_slice_length);
+				}
+				else
+				{
+					execute(time_slice_length);
 					double exe_time = j_now.getComputationTime();
-					if(exe_time<= time_slice_length - ms_passed)
-					{
-						execute(exe_time);
-					}
-					else
-					{
-						execute(time_slice_length - ms_passed);
-						j_now.setComputationTime(exe_time - (time_slice_length - ms_passed));
+					j_now.setComputationTime(exe_time-time_slice_length);
+					if(exe_time - time_slice_length>=time_slice_length)
 						t_now->p->insertJob(j_now);
-						exe_time = time_slice_length - ms_passed;//use exe_time to record the time executed.
-					}
+
 					system_clock::time_point time_now = system_clock::now();
-					auto dur = time_now - time_start;
-					ms_passed = dur.count()/(double)1000;
 					//send a report here
-					TaskSlice ts(j_now.getJobId(), j_now.getTaskId(), exe_time, j_now.getComputationTime(), j_now.isHardRT(), time_now, j_now.getDDL());
+					TaskSlice ts(j_now.getJobId(), j_now.getTaskId(), time_slice_length, j_now.getComputationTime(), j_now.isHardRT(), time_now, j_now.getDDL());
 					//cout<<"In CPU: "<<ts.wrap_info()<<std::endl;
 					send_pipe.sendInfo(ts.wrap_info());
-
 				}
+				
 			}
 		}
 		
@@ -194,6 +183,7 @@ void PCPU::run_pcpu(int port)
 			}
 			
 			Job j(received_jobs.at(i));
+			//cout<<"Received in pcpu: "<<j.print_info()<<endl;
 			if(j.getPartitionId()=="")
 			{
 				std::cout<<j.getPartitionId()<<std::endl;
@@ -203,7 +193,7 @@ void PCPU::run_pcpu(int port)
 			{
 				partitions[j.getPartitionId()]->insertJob(j);
 			}
-			//cout<<"Received in pcpu: "<<received_jobs.at(i)<<endl;
+			
 			
 		}
 		if(poweroff)

@@ -86,9 +86,9 @@ vector<Task> Generation:: generate_tasks(double target_load, bool has_sporadic,
 		counter ++;
 		double density_now = densities.at(i);		
 		int period = (rand()%(2000-5)+5)*TIME_SLICE_LEN;
-		double wcet = ceil(density_now*period);
+		double wcet = ceil(density_now*period/TIME_SLICE_LEN)*TIME_SLICE_LEN;
 		int deadline = period;
-		double arrival = rand()%3000*TIME_SLICE_LEN;
+		double arrival = rand()%1500*TIME_SLICE_LEN;
 		bool is_p = true;
 		if(has_sporadic)
 		{
