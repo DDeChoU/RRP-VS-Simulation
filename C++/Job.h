@@ -153,12 +153,12 @@ public:
 		return result;
 	}
 
-	double getComputationTime(){return computation_time;}
+	double getComputationTime() const{return computation_time;}
 	void setComputationTime(double c){computation_time = c;}
-	system_clock::time_point getDDL(){return arbitrary_ddl;}
+	system_clock::time_point getDDL() const{return arbitrary_ddl;}
 	bool isHardRT(){return is_hard_rt;}
-	string getTaskId(){return task_id;}
-	string getJobId(){return job_id;}
+	string getTaskId() const{return task_id;}
+	string getJobId() const{return job_id;}
 	void setPartitionId(string p_id){partition_id = p_id;}
 	string getPartitionId() const {return partition_id;}
 private:
