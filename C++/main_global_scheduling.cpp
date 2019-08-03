@@ -23,7 +23,7 @@ struct data
 };
 
 
-data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length, ostream &out, int starting_point)
+data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, long long simulation_length, ostream &out, int starting_point, int scheduling_mode)
 {
 	Generation g;
 	//int pcpu_num = 5;
@@ -52,7 +52,7 @@ data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, lon
 	}*/
 	//simulate 30 seconds, which is 30000 milliseconds.
 	int start_t = time(NULL);
-	s.run(tasks, out, 1, simulation_length, starting_point);
+	s.run(tasks, out, scheduling_mode, simulation_length, starting_point);
 	int end_t = time(NULL);
 	cout<<"Time spent in run: "<<end_t - start_t<<endl;
 	data result;
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	long long simulation_length = 30000;
 	int starting_point = 5000;
 
-	int scheduling_mode = 1;
+	int scheduling_mode = 5;
 	std::fstream out;
 	string file_name = std::to_string(scheduling_mode)+"_"+std::to_string(load_ratio)+".log";
 	out.open(file_name, std::fstream::out);
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 		if(pid==0)
 		{
 			close(fd[0]);
-			data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out, starting_point);
+			data temp_result = run_single_round(pcpu_num, target_af_sum,load_ratio,simulation_length, out, starting_point, scheduling_mode);
 			t_j += temp_result.total_job_num;
 			t_m += temp_result.total_miss_num;
 			if(temp_result.total_miss_num == 0)

@@ -24,16 +24,16 @@ public:
 
 	string wrap_info();
 
-	bool isOnTime(){return is_on_time;}
-	bool isHardRT(){return is_hard_rt;}
-	bool isDone(){return wcet_left<=0.000001;}
-	string getJobID(){return job_id;}
-	string getTaskID(){return task_id;}
-	system_clock::time_point getTaskSliceEnd(){return accomplished_time;}
-	double getTaskSliceLen(){return slice_length;}
-	double getTimeLeft(){return wcet_left;}
-	system_clock::time_point getDDL(){return arb_ddl;}
-
+	bool isOnTime() const{return is_on_time;}
+	bool isHardRT() const{return is_hard_rt;}
+	bool isDone() const{return wcet_left<=0.000001;}
+	string getJobID() const{return job_id;}
+	string getTaskID() const{return task_id;}
+	system_clock::time_point getTaskSliceEnd() const{return accomplished_time;}
+	double getTaskSliceLen() const{return slice_length;}
+	double getTimeLeft() const{return wcet_left;}
+	system_clock::time_point getDDL() const{return arb_ddl;}
+	int getPhase() const;
 
 
 };
@@ -130,5 +130,12 @@ string TaskSlice::wrap_info()
 
 }
 
+int TaskSlice::getPhase() const
+{
+	int index = job_id.find('-');
+	string temp = job_id.substr(index+1);
+	int result = atoi(temp.c_str());
+	return result;
+}
 
 #endif

@@ -150,14 +150,17 @@ void PCPU::run_pcpu(int port)
 				if(!t_now->p->schedule(j_now))
 				{
 					execute(time_slice_length);
+					auto time_now = system_clock::now();
+					TaskSlice ts("", "", time_slice_length, 0, false, time_now, time_now);
+					send_pipe.sendInfo(ts.wrap_info());
 				}
 				else
 				{
 					execute(time_slice_length);
 					double exe_time = j_now.getComputationTime();
 					j_now.setComputationTime(exe_time-time_slice_length);
-					if(exe_time - time_slice_length>=time_slice_length)
-						t_now->p->insertJob(j_now);
+					//if(exe_time - time_slice_length>=time_slice_length)
+					//	t_now->p->insertJob(j_now);
 
 					system_clock::time_point time_now = system_clock::now();
 					//send a report here
