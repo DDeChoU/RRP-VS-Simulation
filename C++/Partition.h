@@ -89,13 +89,16 @@ bool Partition:: schedule(Job &j)
 		return false;
 	}
 	j = job_queue.front();
-	job_queue.pop_front();
+	//job_queue.pop_front();
 	return true;
 }
 
 void Partition::insertJob(Job j)
 {
+	job_queue.clear();
+	job_queue.push_back(j);
 	//find the place to insert by using the arbitrary deadline.
+	/* clear all jobs inside
 	auto it = job_queue.begin();
 	while(it!=job_queue.end())
 	{
@@ -103,5 +106,6 @@ void Partition::insertJob(Job j)
 			break;
 	}
 	job_queue.insert(it, j);
+	*/
 }
 #endif

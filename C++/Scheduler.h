@@ -69,6 +69,8 @@ private:
 	//the number of jobs that miss the deadline
 	long long total_miss_num;
 
+	unordered_map<string, Socket_Conn *> global_send_connections;
+
 public:
 	//the constructor takes in the number of pcpus
 	Scheduler(int p_num);
@@ -117,7 +119,7 @@ private:
 	string almost_worst_fit(const Job &j, double density);
 
 	//to be implemented
-	string global_add_job(const Job &j, ostream &out);
+	string global_add_job(Job &j, ostream &out);
 	void global_remove_job(string j_name, ostream &out);
 	//double approximateValue(double value);
 
@@ -469,6 +471,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		}
 		
 	}
+	global_send_connections = send_connections;
 	//error occurs before the fork ends
 	//out<<"Fork ends"<<std::endl;
 	//go on to the scheduler's dead loop
@@ -484,14 +487,18 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			//get the time left now and calculate the density
 			if(schedule_mode==5)
 			{
+				std::cout<<j_now.print_info()<<std::endl;
 				total_job_num ++;
-				string par_selected = global_add_job(j_now, out);
+				global_add_job(j_now, std::cout);
+				/*
+				string par_selected = global_add_job(j_now, std::cout);
 				if(par_selected!="")
 				{
 					j_now.setPartitionId(par_selected);
 					string pcpu_now = partition_cpu_map[par_selected];
 					send_connections[pcpu_now]->sendInfo(j_now.wrap_info());
 				}
+				*/
 			}
 			/*
 			string par_selected = schedule_job(j_now, schedule_mode);
@@ -513,8 +520,8 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			vector<string> taskslices = it->second->receiveInfo();
 			//where does the task slice come from? ----> it->first
 			//out<<taskslices.size()<<" task slices done."<<std::endl;
-			string partition_now = it->first;
-			string pcpu_now = partition_cpu_map[partition_now];
+			//string partition_now = it->first;
+			//string pcpu_now = partition_cpu_map[partition_now];
 			for(int i=0;i<taskslices.size();i++)
 			{
 				TaskSlice ts(taskslices.at(i));
@@ -529,8 +536,10 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				{
 					if(ts.getTimeLeft()<0.001 && ts.getJobID()!="")
 					{
-						global_remove_job(ts.getJobID(), out);
+						cout<<ts.getJobID()<<" is being removed. \n";
+						global_remove_job(ts.getJobID(), std::cout);
 					}
+					/* no need to send back the job
 					string j_now_name = partition_job_map[partition_now];
 					if(j_now_name=="")
 						continue;
@@ -538,6 +547,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 
 					j_now.setPartitionId(partition_now);
 					send_connections[pcpu_now]->sendInfo(j_now.wrap_info());
+					*/
 				}
 				
 				//out<<taskslices.at(i)<<std::endl;
@@ -592,7 +602,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				else
 				{
 					Job j_now = job_full_map[partition_job_map[*it]];
-					if(j_now.getDDL()<time_now)
+					if(j_now.getDDL()<time_now && missed_jobs.count(j_now.getJobId())==0)
 					{
 						//std::cout<<j_now.print_info();
 						total_miss_num++;
@@ -716,7 +726,7 @@ string Scheduler::global_EDF(const Job &j, double density)
 	return largest_id;
 }
 */
-string Scheduler::global_add_job(const Job &j, ostream &out)
+string Scheduler::global_add_job(Job &j, ostream &out)
 {
 	bool found = false;
 	job_full_map[j.getJobId()] = j;
@@ -727,6 +737,10 @@ string Scheduler::global_add_job(const Job &j, ostream &out)
 			//add the job to a certain partition if a partition is empty
 			partition_job_map[*it] = j.getJobId();
 			out<<j.getJobId()<<" is assigned to "<<*it<<"\n";
+			//send the decision through pipe
+			j.setPartitionId(*it);
+			string pcpu_now = partition_cpu_map[*it];
+			global_send_connections[pcpu_now]->sendInfo(j.wrap_info());
 			return *it;
 		}
 		else
@@ -738,6 +752,10 @@ string Scheduler::global_add_job(const Job &j, ostream &out)
 				out<<j.getJobId()<<" is assigned to "<<*it<<" while "<<j_id_now<<" is driven away.\n";
 				Job temp = job_full_map[j_id_now];
 				partition_job_map[*it] = j.getJobId();
+				j.setPartitionId(*it);
+				string pcpu_now = partition_cpu_map[*it];
+				global_send_connections[pcpu_now]->sendInfo(j.wrap_info());
+				//handle the job driven away
 				global_add_job(temp, out);
 				return *it;
 			}
@@ -783,10 +801,20 @@ void Scheduler::global_remove_job(string j_name, ostream &out)
 			if(partition_job_map.count(*it_next)==0)
 				return;
 			partition_job_map[*it] = partition_job_map[*it_next];
+			Job j = job_full_map[partition_job_map[*it]];
+			j.setPartitionId(*it);
+			string pcpu_now = partition_cpu_map[*it];
+			global_send_connections[pcpu_now]->sendInfo(j.wrap_info());
+			out<<j.getJobId()<<" is assigned to "<<*it<<" (R) \n";
 		}
 		else
 		{
 			partition_job_map[*it] = *(waiting_jobs.begin());
+			Job j = job_full_map[partition_job_map[*it]];
+			j.setPartitionId(*it);
+			string pcpu_now = partition_cpu_map[*it];
+			global_send_connections[pcpu_now]->sendInfo(j.wrap_info());
+			out<<j.getJobId()<<" is assigned to "<<*it<<" (R) \n";
 			waiting_jobs.pop_front();
 		}
 	}

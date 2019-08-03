@@ -150,9 +150,9 @@ void PCPU::run_pcpu(int port)
 				if(!t_now->p->schedule(j_now))
 				{
 					execute(time_slice_length);
-					auto time_now = system_clock::now();
-					TaskSlice ts("", "", time_slice_length, 0, false, time_now, time_now);
-					send_pipe.sendInfo(ts.wrap_info());
+					//auto time_now = system_clock::now();
+					//TaskSlice ts("", "", time_slice_length, 0, false, time_now, time_now);
+					//send_pipe.sendInfo(ts.wrap_info());
 				}
 				else
 				{
