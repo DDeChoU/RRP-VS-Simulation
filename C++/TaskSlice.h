@@ -38,7 +38,7 @@ public:
 	string getPartitionId(){return partition_id;}
 
 };
-TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl, string p_now)
+TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl, string p_id)
 {
 	job_id = j_id;
 	task_id = t_id;
