@@ -61,10 +61,13 @@ public:
 	}
 
 	//return the job to be executed. Simply return the first one in the list.
+	//Job * schedule();
 	bool schedule(Job &j);
 
 	//insert the one into the proper place so that the list is EDF. To be implemented.
 	void insertJob(Job j);
+
+	bool update (Job &j);
 private:
 	void reduceAAF()
 	{
@@ -81,6 +84,16 @@ private:
 
 
 };
+/*
+Job * Partition::schedule()
+{
+	if(job_queue.empty())
+	{
+		return nullptr;
+	}
+	return &job_queue.front();
+}
+*/
 
 bool Partition:: schedule(Job &j)
 {
@@ -92,6 +105,7 @@ bool Partition:: schedule(Job &j)
 	//job_queue.pop_front();
 	return true;
 }
+
 
 void Partition::insertJob(Job j)
 {
@@ -107,5 +121,17 @@ void Partition::insertJob(Job j)
 	}
 	job_queue.insert(it, j);
 	*/
+}
+
+bool Partition::update(Job &j)
+{
+	if(job_queue.empty())
+		return false;
+	if(job_queue.front().getJobId()!=j.getJobId())
+		return false;
+	job_queue.front().setComputationTime(j.getComputationTime());
+	if(job_queue.front().getComputationTime()<=1)
+		job_queue.clear();
+	return true;
 }
 #endif

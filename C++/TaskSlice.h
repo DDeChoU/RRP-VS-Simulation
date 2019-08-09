@@ -15,9 +15,10 @@ private:
 	bool is_on_time;
 	system_clock::time_point accomplished_time;
 	system_clock::time_point arb_ddl;
+	string partition_id;
 
 public:
-	TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl);
+	TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl, string p_id);
 
 
 	TaskSlice(string wrapped_info);
@@ -34,10 +35,10 @@ public:
 	double getTimeLeft() const{return wcet_left;}
 	system_clock::time_point getDDL() const{return arb_ddl;}
 	int getPhase() const;
-
+	string getPartitionId(){return partition_id;}
 
 };
-TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl)
+TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl, string p_now)
 {
 	job_id = j_id;
 	task_id = t_id;
@@ -50,6 +51,7 @@ TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bo
 		is_on_time = false;
 	else
 		is_on_time = true;
+	partition_id = p_id;
 }
 
 TaskSlice::TaskSlice(string wrapped_info)
@@ -108,6 +110,11 @@ TaskSlice::TaskSlice(string wrapped_info)
 				task_id = token;
 				break;
 			}
+			case 9:
+			{
+				partition_id = token;
+				break;
+			}
 			default:
 				break;
 		}
@@ -125,7 +132,9 @@ string TaskSlice::wrap_info()
 	result += std::to_string(ms.count())+",";
 	ms = duration_cast<milliseconds>(arb_ddl.time_since_epoch());
 	result += std::to_string(ms.count())+",";
-	result += task_id+"\n";
+	result += task_id+",";
+	result +=partition_id+"\n";
+
 	return result;
 
 }

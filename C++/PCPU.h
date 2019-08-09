@@ -146,7 +146,28 @@ void PCPU::run_pcpu(int port)
 			else
 			{
 				//cout<<"Running a non-idle time slice"<<endl;
+				//j_now is not updated!!!!
+				//change j_now to a pointer, change Partition's schedule function
 				Job j_now;
+				/*
+				Job *j_now = t_now->p->schedule();
+				if(j_now==nullptr)
+				{
+					execute(time_slice_length);
+				}
+				else
+				{
+					execute(time_slice_length);
+					double exe_time = j_now->getComputationTime();
+					j_now->setComputationTime(exe_time - time_slice_length);
+
+					system_clock::time_point time_now = system_clock::now();
+					//send a report here
+					TaskSlice ts(j_now->getJobId(), j_now->getTaskId(), time_slice_length, j_now->getComputationTime(), j_now->isHardRT(), time_now, j_now->getDDL());
+					//cout<<"In CPU: "<<ts.wrap_info()<<std::endl;
+					send_pipe.sendInfo(ts.wrap_info());
+				}*/
+				
 				if(!t_now->p->schedule(j_now))
 				{
 					execute(time_slice_length);
@@ -159,15 +180,17 @@ void PCPU::run_pcpu(int port)
 					execute(time_slice_length);
 					double exe_time = j_now.getComputationTime();
 					j_now.setComputationTime(exe_time-time_slice_length);
-					//if(exe_time - time_slice_length>=time_slice_length)
-					//	t_now->p->insertJob(j_now);
-
-					system_clock::time_point time_now = system_clock::now();
-					//send a report here
-					TaskSlice ts(j_now.getJobId(), j_now.getTaskId(), time_slice_length, j_now.getComputationTime(), j_now.isHardRT(), time_now, j_now.getDDL());
-					//cout<<"In CPU: "<<ts.wrap_info()<<std::endl;
-					send_pipe.sendInfo(ts.wrap_info());
+					//update j_now to partition here
+					if(t_now->p->update(j_now))
+					{
+						system_clock::time_point time_now = system_clock::now();
+						//send a report here
+						TaskSlice ts(j_now.getJobId(), j_now.getTaskId(), time_slice_length, j_now.getComputationTime(), j_now.isHardRT(), time_now, j_now.getDDL(), t_now->p->getID());
+						//cout<<"In CPU: "<<ts.wrap_info()<<std::endl;
+						send_pipe.sendInfo(ts.wrap_info());
+					}
 				}
+				
 				
 			}
 		}
