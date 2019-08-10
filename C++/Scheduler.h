@@ -225,7 +225,7 @@ bool Scheduler::MulZ()
 		}
 		else
 		{
-			std::cout<<p_temp->getID()<<"("<<p_temp->getAAFUp()<<"/"<<p_temp->getAAFDown() <<") mapped to "<<res<<std::endl;
+			//std::cout<<p_temp->getID()<<"("<<p_temp->getAAFUp()<<"/"<<p_temp->getAAFDown() <<") mapped to "<<res<<std::endl;
 			partition_cpu_map[p_temp->getID()] = res;
 		}
 	}
@@ -312,7 +312,7 @@ bool Scheduler::set_partitions(vector<Partition> &partition_list)
 	//std::cout<<"MulZ starts."<<std::endl;
 	if(!MulZ())
 	{
-		std::cout<<"The partitions are not schedulable"<<std::endl;
+		//std::cout<<"The partitions are not schedulable"<<std::endl;
 		partitions.clear();
 		return false;
 		//put a log here saying something is wrong.
@@ -487,9 +487,9 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			//get the time left now and calculate the density
 			if(schedule_mode==5)
 			{
-				std::cout<<j_now.print_info()<<std::endl;
+				//std::cout<<j_now.print_info()<<std::endl;
 				total_job_num ++;
-				global_add_job(j_now, std::cout);
+				global_add_job(j_now, out);
 				/*
 				string par_selected = global_add_job(j_now, std::cout);
 				if(par_selected!="")
@@ -536,8 +536,8 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				{
 					if(ts.getTimeLeft()<0.001 && ts.getJobID()!="")
 					{
-						cout<<ts.getJobID()<<" is being removed. \n";
-						global_remove_job(ts.getJobID(), std::cout);
+						//cout<<ts.getJobID()<<" is being removed. \n";
+						global_remove_job(ts.getJobID(), out);
 					}
 					//need to update the info in the global map
 					if(job_full_map.count(ts.getJobID())!=0 && ts.getPartitionId() == job_full_map[ts.getJobID()].getPartitionId())
@@ -563,7 +563,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		double ms = dur.count()/(double)1000;
 		if(ms>=simulation_time)
 		{
-			std::cout<<total_miss_num<<std::endl;
+			//std::cout<<total_miss_num<<std::endl;
 			
 			//send poweroff to all children processes.
 			string shutdownSignal = "Poweroff\n";
@@ -632,7 +632,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 
 	}
 
-	cout<<"Shutting down scheduler.\n";
+	out<<"Shutting down scheduler.\n";
 }
 
 

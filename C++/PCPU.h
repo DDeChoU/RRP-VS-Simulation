@@ -224,12 +224,12 @@ void PCPU::run_pcpu(int port)
 		}
 		if(poweroff)
 		{
-			std::cout<<"Cleaning objects"<<endl;
+			//std::cout<<"Cleaning objects"<<endl;
 			break;
 		}
 
 	}
-	std::cout<<"PCPU #"<<pcpu_id<<" shutting down"<<endl;
+	//std::cout<<"PCPU #"<<pcpu_id<<" shutting down"<<endl;
 	
 }
 
