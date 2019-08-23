@@ -30,10 +30,10 @@ data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, lon
 	Scheduler s(pcpu_num);
 	//double target_af_sum = 3;
 	vector<Partition> ps = g.generate_partitions(target_af_sum);//the partitions in ps is used in Scheduler s
-	cout<<"partitions generated."<<endl;
+	//cout<<"partitions generated."<<endl;
 	while(!s.set_partitions(ps))
 	{
-		cout<<"Resetting partitions.\n";
+		//cout<<"Resetting partitions.\n";
 		ps.clear();
 		ps = g.generate_partitions(target_af_sum);
 	}
@@ -54,7 +54,7 @@ data run_single_round(int pcpu_num, double target_af_sum, double load_ratio, lon
 	int start_t = time(NULL);
 	s.run(tasks, out, 1, simulation_length, starting_point);
 	int end_t = time(NULL);
-	cout<<"Time spent in run: "<<end_t - start_t<<endl;
+	//cout<<"Time spent in run: "<<end_t - start_t<<endl;
 	data result;
 	result.total_miss_num = s.getMissNum();
 	result.total_job_num = s.getJobNum();
