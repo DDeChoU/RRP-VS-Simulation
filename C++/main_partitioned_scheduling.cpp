@@ -79,8 +79,10 @@ int main(int argc, char *argv[])
 	int starting_point = 5000;
 
 	int scheduling_mode = 1;
-	std::fstream out;
+	std::fstream out, result_out;
 	string file_name = std::to_string(scheduling_mode)+"_"+std::to_string(load_ratio)+".log";
+	string result_file_name = std::to_string(scheduling_mode)+"_"+std::to_string(load_ratio)+"_result.txt";
+	result_out.open(result_file_name, std::fstream::out);
 	out.open(file_name, std::fstream::out);
 	for(int i=0;i<repeat_time;i++)
 	{
@@ -89,9 +91,9 @@ int main(int argc, char *argv[])
 		int fd[2];
 		pipe(fd);
 
-		cout<<"********************"<<endl;
+		result_out<<"********************"<<endl;
 		//sleep(10);
-		cout<<"Round "<<i<<endl;
+		result_out<<"Round "<<i<<endl;
 		int pid = fork();
 		if(pid==0)
 		{
@@ -111,13 +113,15 @@ int main(int argc, char *argv[])
 		read(fd[0], &t_j, sizeof(t_j));
 		read(fd[0], &t_m, sizeof(t_m));
 		read(fd[0], &schdulable_num, sizeof(schdulable_num));
-		cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
-		cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
-		cout<<"********************"<<endl;
+		result_out<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
+		result_out<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
+		result_out<<"********************"<<endl;
+		result_out.flush();
 	}
 	out.flush();
 	out.close();
-
+	result_out.flush();
+	result_out.close();
 
 
 }

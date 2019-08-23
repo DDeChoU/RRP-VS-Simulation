@@ -102,6 +102,7 @@ private:
 	string worst_fit(const Job &j, double density);
 	string first_fit(const Job &j, double density);
 	string almost_worst_fit(const Job &j, double density);
+	string add_job(const Job &j, double density);
 	//double approximateValue(double value);
 
 	//initialize the time-partition table in the given pcpu;
@@ -424,7 +425,10 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 					//handle not schedulable here
 					out<<j_now.getJobId()<<" is not schedulable! \n";
 					total_miss_num ++;
-					continue;
+					//push the job into a partition 
+					par_selected = add_job(j_now, density);
+					if(par_selected=="")
+						continue;
 				}
 
 				//modify the parameter partition selected here (aaf_left)
@@ -501,6 +505,21 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 	cout<<"Shutting down scheduler.\n";
 }
 
+string Scheduler::add_job(const Job &j, double density)
+{
+	string p = "";
+	double largest_aaf= -100000;
+	for(auto it = partitions.begin();it!=partitions.end();it++)
+	{
+		double al = it->second->getAAFLeft();
+		if(al>=largest_aaf)
+		{
+			largest_aaf = al;
+			p = it->first;
+		}
+	}
+	return p;
+}
 
 string Scheduler::best_fit(const Job &j, double density)
 {
