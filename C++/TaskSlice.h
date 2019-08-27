@@ -15,29 +15,30 @@ private:
 	bool is_on_time;
 	system_clock::time_point accomplished_time;
 	system_clock::time_point arb_ddl;
+	string partition_id;
 
 public:
-	TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl);
+	TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl, string p_id);
 
 
 	TaskSlice(string wrapped_info);
 
 	string wrap_info();
 
-	bool isOnTime(){return is_on_time;}
-	bool isHardRT(){return is_hard_rt;}
-	bool isDone(){return wcet_left<=0.000001;}
-	string getJobID(){return job_id;}
-	string getTaskID(){return task_id;}
-	system_clock::time_point getTaskSliceEnd(){return accomplished_time;}
-	double getTaskSliceLen(){return slice_length;}
-	double getTimeLeft(){return wcet_left;}
-	system_clock::time_point getDDL(){return arb_ddl;}
-
-
+	bool isOnTime() const{return is_on_time;}
+	bool isHardRT() const{return is_hard_rt;}
+	bool isDone() const{return wcet_left<=0.000001;}
+	string getJobID() const{return job_id;}
+	string getTaskID() const{return task_id;}
+	system_clock::time_point getTaskSliceEnd() const{return accomplished_time;}
+	double getTaskSliceLen() const{return slice_length;}
+	double getTimeLeft() const{return wcet_left;}
+	system_clock::time_point getDDL() const{return arb_ddl;}
+	int getPhase() const;
+	string getPartitionId(){return partition_id;}
 
 };
-TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl)
+TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bool hard_rt, system_clock::time_point acc_time, system_clock::time_point ddl, string p_id)
 {
 	job_id = j_id;
 	task_id = t_id;
@@ -50,6 +51,7 @@ TaskSlice::TaskSlice(string j_id, string t_id, double slice_l, double t_left, bo
 		is_on_time = false;
 	else
 		is_on_time = true;
+	partition_id = p_id;
 }
 
 TaskSlice::TaskSlice(string wrapped_info)
@@ -108,6 +110,11 @@ TaskSlice::TaskSlice(string wrapped_info)
 				task_id = token;
 				break;
 			}
+			case 9:
+			{
+				partition_id = token;
+				break;
+			}
 			default:
 				break;
 		}
@@ -125,10 +132,19 @@ string TaskSlice::wrap_info()
 	result += std::to_string(ms.count())+",";
 	ms = duration_cast<milliseconds>(arb_ddl.time_since_epoch());
 	result += std::to_string(ms.count())+",";
-	result += task_id+"\n";
+	result += task_id+",";
+	result +=partition_id+"\n";
+
 	return result;
 
 }
 
+int TaskSlice::getPhase() const
+{
+	int index = job_id.find('-');
+	string temp = job_id.substr(index+1);
+	int result = atoi(temp.c_str());
+	return result;
+}
 
 #endif

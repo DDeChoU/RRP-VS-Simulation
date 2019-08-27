@@ -121,7 +121,7 @@ public:
 				break;
 
 		}
-		cout<<"OS Simulator shutting down!"<<endl;
+		//cout<<"OS Simulator shutting down!"<<endl;
 
 	}
 

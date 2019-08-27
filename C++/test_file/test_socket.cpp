@@ -10,7 +10,7 @@ void keepSending(Socket_Conn &f)
 		
 		string to_send = to_string(i)+" test string. Use long sentence to test data loss under multiple send before one recv\n";
 		f.sendInfo(to_send);
-		sleep(1);
+		//sleep(1);
 	}
 	return;
 }
@@ -29,7 +29,7 @@ int main()
 	{
 		cout<<"Child progress in"<<endl;
 		//sleep(1);	
-		Socket_Conn a(20, true);
+		Socket_Conn a(2000, true);
 		cout<<"Server sending"<<endl;
 		keepSending(a);
 		cout<<"All sent"<<endl;
@@ -38,7 +38,7 @@ int main()
 	else
 	{
 		sleep(1);
-		Socket_Conn b(20, false);
+		Socket_Conn b(2000, false);
 		int counter = 0;
 		while(counter<5)
 		{
