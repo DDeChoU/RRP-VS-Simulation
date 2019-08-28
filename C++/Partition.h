@@ -65,6 +65,8 @@ public:
 
 	//insert the one into the proper place so that the list is EDF. To be implemented.
 	void insertJob(Job j);
+
+
 private:
 	void reduceAAF()
 	{
@@ -104,4 +106,7 @@ void Partition::insertJob(Job j)
 	}
 	job_queue.insert(it, j);
 }
+
+
+
 #endif

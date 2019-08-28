@@ -78,6 +78,7 @@ public:
 	string showTTable();
 
 	string getID() const{return pcpu_id;}
+
 	~PCPU();
 
 private:
@@ -158,6 +159,8 @@ void PCPU::run_pcpu(int port)
 					j_now.setComputationTime(exe_time-time_slice_length);
 					if(exe_time - time_slice_length>=time_slice_length)
 						t_now->p->insertJob(j_now);
+					//else
+						//std::cout << j_now.getJobId() << " is done and removed."<<std::endl;
 
 					system_clock::time_point time_now = system_clock::now();
 					//send a report here
@@ -198,12 +201,12 @@ void PCPU::run_pcpu(int port)
 		}
 		if(poweroff)
 		{
-			std::cout<<"Cleaning objects"<<endl;
+			//std::cout<<"Cleaning objects"<<endl;
 			break;
 		}
 
 	}
-	std::cout<<"PCPU #"<<pcpu_id<<" shutting down"<<endl;
+	//std::cout<<"PCPU #"<<pcpu_id<<" shutting down"<<endl;
 	
 }
 
@@ -417,4 +420,5 @@ string PCPU::showTTable()
 	return result;
 
 }
+
 #endif

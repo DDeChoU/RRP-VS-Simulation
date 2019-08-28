@@ -53,7 +53,12 @@ private:
 	unordered_map<string, list<string> > domain_partition_map;
 
 	unordered_map<string, int> hyper_periods;//all aafs are constrained to 3-digit-long after the decimal point.
-	
+
+	//the map that stores all jobs
+	unordered_map<string, Job> job_full_map;
+
+	//records the jobs in the system
+	unordered_set<string> jobs_in;
 
 	//initialize some parameters used to record the task execution 
 	
@@ -207,7 +212,7 @@ bool Scheduler::MulZ()
 		}
 		else
 		{
-			std::cout<<p_temp->getID()<<"("<<p_temp->getAAFUp()<<"/"<<p_temp->getAAFDown() <<") mapped to "<<res<<std::endl;
+			//std::cout<<p_temp->getID()<<"("<<p_temp->getAAFUp()<<"/"<<p_temp->getAAFDown() <<") mapped to "<<res<<std::endl;
 			partition_cpu_map[p_temp->getID()] = res;
 		}
 	}
@@ -294,7 +299,7 @@ bool Scheduler::set_partitions(vector<Partition> &partition_list)
 	//std::cout<<"MulZ starts."<<std::endl;
 	if(!MulZ())
 	{
-		std::cout<<"The partitions are not schedulable"<<std::endl;
+		//std::cout<<"The partitions are not schedulable"<<std::endl;
 		partitions.clear();
 		return false;
 		//put a log here saying something is wrong.
@@ -386,6 +391,9 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		for(int i=0;i<arriving_jobs.size();i++)
 		{
 			Job j_now(arriving_jobs.at(i));
+			job_full_map[j_now.getJobId()] = j_now;
+			jobs_in.insert(j_now.getJobId());
+			//std::cout<<j_now.print_info();
 			//get the time left now and calculate the density
 			auto dur = duration_cast<microseconds>(j_now.getDDL() - system_clock::now());
 			double ms_ddl = dur.count()/(double)1000;
@@ -436,7 +444,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				//maintain the job-partition map here
 				task_partition_map[j_now.getTaskId()] = par_selected;
 			}
-			out<<j_now.getJobId()<<" is scheduled to "<<par_selected<<std::endl;
+			//std::cout<<j_now.getJobId()<<" is scheduled to "<<par_selected<<std::endl;
 			//modify the job's partition tag and allocate the task to the pcpu that partition is on.
 			j_now.setPartitionId(par_selected);
 			string pcpu_now = partition_cpu_map[par_selected];
@@ -455,8 +463,13 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				TaskSlice ts(taskslices.at(i));
 				if(!ts.isOnTime()&&missed_jobs.count(ts.getJobID())==0)
 				{
+					//std::cout<<ts.getJobID()<<" misses the deadline!!!!!"<<std::endl;
 					missed_jobs.insert(ts.getJobID());
 					total_miss_num ++;
+				}
+				if(ts.getTimeLeft()<1)
+				{
+					jobs_in.erase(ts.getJobID());
 				}
 				out<<"Task slice report:"<<ts.wrap_info()<<std::endl;
 				//out<<taskslices.at(i)<<std::endl;
@@ -467,7 +480,17 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 		double ms = dur.count()/(double)1000;
 		if(ms>=simulation_time)
 		{
-			
+			auto time_now = system_clock::now();
+			//inspect how many tasks are left with deadline passed.
+			for(auto it_job = jobs_in.begin();it_job!=jobs_in.end();it_job++)
+			{
+				Job &j_now = job_full_map[*it_job];
+				if(j_now.getDDL()<time_now && missed_jobs.count(j_now.getJobId())==0)
+				{
+					//std::cout << j_now.getJobId() << "surpasses the deadline. "<<std::endl;
+					total_miss_num ++;
+				}
+			}	
 			//send poweroff to all children processes.
 			string shutdownSignal = "Poweroff\n";
 			for(auto it=send_connections.begin();it!=send_connections.end();it++)
@@ -502,7 +525,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 
 	}
 
-	cout<<"Shutting down scheduler.\n";
+	//cout<<"Shutting down scheduler.\n";
 }
 
 string Scheduler::add_job(const Job &j, double density)
