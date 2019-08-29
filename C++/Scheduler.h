@@ -530,17 +530,17 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				if(j_now.isHardRT() && task_partition_map.count(j_now.getTaskId())!=0)
 				{
 					//assign j_now to the given partition, no need to modify the parameters (hard rt jobs leave without modifying)
-					std::cout << j_now.print_info() << std::endl;
+					//std::cout << j_now.print_info() << std::endl;
 					string par = task_partition_map[j_now.getTaskId()];
 					add_job_to_partition(par, j_now);
 					update_par_edf(par);
-					std::cout<<j_now.getJobId()<<" is assigned to "<<par<<" as before."<<std::endl;
+					//std::cout<<j_now.getJobId()<<" is assigned to "<<par<<" as before."<<std::endl;
 
 				}
 				//invoke semi_add_job here!! Both soft real-time and hard real-time can invoke semi_add_job here
 				else
 				{
-					std::cout<< std::endl << j_now.print_info() ;
+					//std::cout<< std::endl << j_now.print_info() ;
 					semi_add_job(j_now);
 				}
 			}
@@ -574,8 +574,8 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				out<<"Task slice report from "<<it->first<<" : "<<ts.wrap_info()<<"\n";
 				if(!ts.isOnTime()&&missed_jobs.count(ts.getJobID())==0)
 				{
-					std::cout<<ts.getJobID()<<" misses the deadline! "<<std::endl;
-					std::cout<< ts.wrap_info();
+					//std::cout<<ts.getJobID()<<" misses the deadline! "<<std::endl;
+					//std::cout<< ts.wrap_info();
 					missed_jobs.insert(ts.getJobID());
 					total_miss_num ++;
 					if(ts.isHardRT())
@@ -622,7 +622,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			time_t et = system_clock::to_time_t(time_now);
 			const auto nowMS = duration_cast<milliseconds>(time_now.time_since_epoch())%1000;
 			ss<<std::put_time(localtime(&et), "%F %T")<<"."<<std::setfill('0')<<std::setw(3)<<nowMS.count();
-			std::cout<<ss.str()<<std::endl;
+			//std::cout<<ss.str()<<std::endl;
 			
 			//check how many jobs in each partition has missed the deadline
 			for(auto it_par = partition_job_map.begin(); it_par != partition_job_map.end();it_par++)
@@ -633,8 +633,8 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 					if(job_full_map[*it_job].getDDL() < time_now && missed_jobs.count(*it_job)==0)
 					{
 						missed_jobs.insert(*it_job);
-						std::cout << *it_job << " misses the deadline at the end "<<std::endl;
-						std::cout<< job_full_map[*it_job].print_info()<<std::endl;
+						//std::cout << *it_job << " misses the deadline at the end "<<std::endl;
+						//std::cout<< job_full_map[*it_job].print_info()<<std::endl;
 						total_miss_num ++;
 						total_hard_miss_num++;
 					}
@@ -791,8 +791,7 @@ void Scheduler::semi_add_job(Job &j)
 	string par_bf_id = best_fit(j, density);
 	if(par_bf_id!="")
 	{
-		/*
-		//commented due to the great overhead
+
 		//this applies to any job (hard or not hard real-time) that can be fit with BF.
 		//check whether swap can be helpful
 		//check 1. job j swap with the whole job set in the partition
@@ -870,17 +869,18 @@ void Scheduler::semi_add_job(Job &j)
 			add_job_to_partition(par_bf_id, j);
 			partitions[par_bf_id]->setAAFLeft(partitions[par_bf_id]->getAAFLeft() - density);
 			update_par_edf(par_bf_id);
-		}*/
+		}
+		/*
 		add_job_to_partition(par_bf_id, j);
 		partitions[par_bf_id]->setAAFLeft(partitions[par_bf_id]->getAAFLeft() - density);
 		update_par_edf(par_bf_id);
 		std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()<<std::endl;
-		task_partition_map[j.getTaskId()] = par_bf_id;
+		task_partition_map[j.getTaskId()] = par_bf_id;*/
 		return;
 	}
 	else if(par_bf_id=="")
 	{
-		std::cout << "This job is not schedulable by BF. "<<std::endl;
+		//std::cout << "This job is not schedulable by BF. "<<std::endl;
 		//first find out the largest aaf left
 		list<string> par_sorted_aaf_left;
 		for(auto it_par = partitions.begin(); it_par!=partitions.end();it_par++)
@@ -906,7 +906,7 @@ void Scheduler::semi_add_job(Job &j)
 			update_par_edf(par_sorted_aaf_left.front());
 			Partition *temp_p = partitions[par_sorted_aaf_left.front()];
 			temp_p->setAAFLeft(temp_p->getAAFLeft() - density);
-			std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()<<" which makes it unschedulable"<<std::endl;
+			//std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()<<" which makes it unschedulable"<<std::endl;
 			task_partition_map[j.getTaskId()] = j.getPartitionId();
 			return;
 		}
@@ -959,7 +959,7 @@ void Scheduler::semi_add_job(Job &j)
 			add_job_to_partition(par_sorted_aaf_left.front(), j);
 			update_par_edf(par_sorted_aaf_left.front());
 			temp_p->setAAFLeft(temp_p->getAAFLeft() - density);
-			std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()<<" which makes it unschedulable"<<std::endl;
+			//std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()<<" which makes it unschedulable"<<std::endl;
 			task_partition_map[j.getTaskId()] = j.getPartitionId();
 			return;
 		}
@@ -997,8 +997,8 @@ void Scheduler::semi_add_job(Job &j)
 			add_job_to_partition(swap_par, j);
 			update_par_edf(swap_par);
 			swap_par_ptr->setAAFLeft(swap_par_ptr->getAAF() - density);
-			std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()
-			<<" by swapping with a set of job."<<std::endl;
+			//std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()
+			//<<" by swapping with a set of job."<<std::endl;
 			task_partition_map[j.getTaskId()] = j.getPartitionId();
 			return;
 		}
@@ -1030,8 +1030,8 @@ void Scheduler::semi_add_job(Job &j)
 			add_job_to_partition(swap_par, j);
 			update_par_edf(swap_par);
 			swap_par_ptr->setAAFLeft(swap_par_ptr->getAAFLeft() + job_density - density);
-			std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()
-			<<" by swapping one job. "<<std::endl;
+			//std::cout << j.getJobId() << " is assigned to "<<j.getPartitionId()
+			//<<" by swapping one job. "<<std::endl;
 			task_partition_map[j.getTaskId()] = j.getPartitionId();
 			return;
 		}

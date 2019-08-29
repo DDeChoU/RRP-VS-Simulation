@@ -92,10 +92,10 @@ int main(int argc, char *argv[])
 		int fd[2];
 		pipe(fd);
 
-		cout<<"********************"<<endl;
+		result_out<<"********************"<<endl;
 		//result_out<<"********************"<<endl;
 		//sleep(10);
-		cout<<"Round "<<i<<endl;
+		result_out<<"Round "<<i<<endl;
 		int pid = fork();
 		if(pid==0)
 		{
@@ -115,10 +115,10 @@ int main(int argc, char *argv[])
 		read(fd[0], &t_j, sizeof(t_j));
 		read(fd[0], &t_m, sizeof(t_m));
 		read(fd[0], &schdulable_num, sizeof(schdulable_num));
-		cout<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
-		cout<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
-		cout<<"********************"<<endl;
-		cout.flush();
+		result_out<<"Miss ratio:"<<t_m<<" / "<<t_j<<endl;
+		result_out<<"Schedulability: "<<schdulable_num/(double)(i+1)<<endl;
+		result_out<<"********************"<<endl;
+		result_out.flush();
 	}
 	out.flush();
 	out.close();
