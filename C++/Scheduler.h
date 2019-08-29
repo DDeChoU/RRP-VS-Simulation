@@ -540,7 +540,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				//invoke semi_add_job here!! Both soft real-time and hard real-time can invoke semi_add_job here
 				else
 				{
-					std::cout << j_now.print_info() << std::endl;
+					std::cout<< std::endl << j_now.print_info() ;
 					semi_add_job(j_now);
 				}
 			}
@@ -569,9 +569,13 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			for(int i=0;i<taskslices.size();i++)
 			{
 				TaskSlice ts(taskslices.at(i));
+				if(it->first!=job_full_map[ts.getJobID()].getPartitionId())
+					continue;
 				out<<"Task slice report from "<<it->first<<" : "<<ts.wrap_info()<<"\n";
 				if(!ts.isOnTime()&&missed_jobs.count(ts.getJobID())==0)
 				{
+					std::cout<<ts.getJobID()<<" misses the deadline! "<<std::endl;
+					std::cout<< ts.wrap_info();
 					missed_jobs.insert(ts.getJobID());
 					total_miss_num ++;
 					if(ts.isHardRT())
@@ -580,7 +584,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				//if the job is done, remove the job and maintain the list
 				if(schedule_mode==6)
 				{
-					if(ts.getTimeLeft()<0.001 && ts.getJobID()!="")
+					if(ts.getTimeLeft()<0.001 && ts.getJobID()!=""&&job_full_map.count(ts.getJobID())!=0)
 					{
 						cout<<ts.getJobID()<<" is being removed. \n";
 						// TODO: invoke semi_remove_job here!!
@@ -876,7 +880,7 @@ void Scheduler::semi_add_job(Job &j)
 	}
 	else if(par_bf_id=="")
 	{
-
+		std::cout << "This job is not schedulable by BF. "<<std::endl;
 		//first find out the largest aaf left
 		list<string> par_sorted_aaf_left;
 		for(auto it_par = partitions.begin(); it_par!=partitions.end();it_par++)
