@@ -14,6 +14,7 @@
 #include <signal.h>
 #include <unordered_set>
 #include <limits.h>
+#include <fstream>
 
 #include "Task.h"
 #include "Job.h"
