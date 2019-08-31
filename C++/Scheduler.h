@@ -336,7 +336,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 			sleep(1);
 			if(i==pcpu_num)
 			{
-				os.generate_jobs( ports[i]);
+				os.generate_jobs(ports[i]);
 			}
 			else
 			{
@@ -439,7 +439,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 					if(par_selected=="")
 						continue;
 				}
-
+				out<<j_now.getJobId()<<" is assigned to "<<par_selected<<", the partition left: "<<partitions[par_selected]->getAAFLeft() - density<<".\n";
 				//modify the parameter partition selected here (aaf_left)
 				partitions[par_selected]->setAAFLeft(partitions[par_selected]->getAAFLeft() - density);
 				//maintain the job-partition map here
@@ -465,14 +465,16 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				if(!ts.isOnTime()&&missed_jobs.count(ts.getJobID())==0)
 				{
 					//std::cout<<ts.getJobID()<<" misses the deadline!!!!!"<<std::endl;
+					out<<ts.getJobID()<<"misses the deadline.\n";
 					missed_jobs.insert(ts.getJobID());
 					total_miss_num ++;
 				}
 				if(ts.getTimeLeft()<1)
 				{
+					out<<ts.getJobID()<<" is done. \n";
 					jobs_in.erase(ts.getJobID());
 				}
-				out<<"Task slice report:"<<ts.wrap_info()<<std::endl;
+				//out<<"Task slice report:"<<ts.wrap_info()<<std::endl;
 				//out<<taskslices.at(i)<<std::endl;
 			}
 		}
@@ -488,7 +490,7 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 				Job &j_now = job_full_map[*it_job];
 				if(j_now.getDDL()<time_now && missed_jobs.count(j_now.getJobId())==0)
 				{
-					//std::cout << j_now.getJobId() << "surpasses the deadline. "<<std::endl;
+					out << j_now.getJobId() << "surpasses the deadline.\n";
 					total_miss_num ++;
 				}
 			}	

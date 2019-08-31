@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
 
 	int repeat_time = 1000;
 
-	int pcpu_num = 4;
-	double target_af_sum = 3;
+	int pcpu_num = 3;
+	double target_af_sum = 2;
 	//double load_ratio = 0.5;
 	double load_ratio = atof(argv[1]);
 	long long simulation_length = 30000;
