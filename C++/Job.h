@@ -161,6 +161,13 @@ public:
 	string getJobId(){return job_id;}
 	void setPartitionId(string p_id){partition_id = p_id;}
 	string getPartitionId() const {return partition_id;}
+
+	//extends the ddl of the job to forever
+	void extendDDL()
+	{
+		duration<int, std::ratio<60*60*24> > one_day(1);
+		arbitrary_ddl = arbitrary_ddl + one_day;
+	}
 private:
 	string printTP(system_clock::time_point time_now)
 	{
@@ -172,5 +179,6 @@ private:
 	}
 
 };
+
 
 #endif

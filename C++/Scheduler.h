@@ -434,6 +434,8 @@ void Scheduler::run(vector<Task> taskList, std::ostream &out, int schedule_mode,
 					//handle not schedulable here
 					out<<j_now.getJobId()<<" is not schedulable! \n";
 					total_miss_num ++;
+					j_now.extendDDL();
+					job_full_map[j_now.getJobId()] = j_now;
 					//push the job into a partition 
 					par_selected = add_job(j_now, density);
 					if(par_selected=="")
